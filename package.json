@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "connect-history-api-fallback": "^1.6.0",
+    "cors": "^2.8.5"
+  }
+}
