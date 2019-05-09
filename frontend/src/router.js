@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import e404 from './views/e404.vue'
 
 Vue.use(Router)
 
@@ -20,6 +21,11 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ './views/User.vue')
+    },
+    {
+      path: '*',
+      name: 'e404',
+      component: () => import('./views/e404.vue')
     }
   ]
 })

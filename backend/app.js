@@ -20,7 +20,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.get('env') === 'development' && app.use(cors()); // 개발모드 일때만 활성화
+
+// 개발모드 일때만 활성화, 미들웨어 cors 처리
+app.get('env') === 'development' && app.use(cors()); 
 
 /**
  * 1. /api , /(root) 이외에 경로들은 모두 Error로 내보낸다.
@@ -29,6 +31,8 @@ app.get('env') === 'development' && app.use(cors()); // 개발모드 일때만 �
 
 // api 경로 수행
 app.use('/api', require('./routes/api'));
+
+// 존재하지 않는 경로일때 서버에서의 처리를 view 단의 페이지에서 처리할 수 있도록 위임한다.
 app.use(history());
 
 /**
