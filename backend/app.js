@@ -42,12 +42,12 @@ app.use(express.static(path.join(__dirname, './../', 'frontend', 'dist')));
 // app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   console.log(req)
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -56,7 +56,52 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   // res.render('error'); // express render가 아닌 vue에서 render 한다.
-  res.send({ msg: err.message});
+  res.send({ msg: err.message });
+});
+
+const mongoose = require('mongoose');
+const User = require('./models/users');
+
+mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, (err) => {
+  if (err) return console.error(err);
+  console.log('mongoose connected!');
+
+  // User.create({
+  //   name: '테스트유저'
+  // }).then(res => {
+  //   console.log(res);
+  // }).catch(err => {
+  //   console.error(err);
+  // });
+
+  // User.find().then(res => console.log(res))
+  //   .catch(err => console.error(err));
+
+  // User.updateOne({ _id: '5cd3fe808fa8866f6128a3bd' }, { $set: { age: 13 } })
+  //   .then(res => {
+  //     console.log(res);
+  //     console.log('updated');
+  //     return User.find(); //promise return
+  //   }).then(res => {
+  //     console.log(res);
+  //   }).catch(err => {
+  //     console.error(err);
+  //   });
+
+  // User.deleteOne({ name: '테스트유저' })
+  //   .then(res => {
+  //     console.log(res);
+  //   }).catch(err => {
+  //     console.log(err);
+  //   });
+
+  User.deleteMany()
+    .then(res => {
+      console.log(res);
+    })
+    .catch(err => {
+      console.log(err);
+    })
 });
 
 module.exports = app;

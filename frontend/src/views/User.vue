@@ -101,7 +101,7 @@ export default {
     postUser() {
       axios
         .post("http://localhost:3000/api/user/", {
-          user: 'post_user'
+          name: '가정', age: 22
         })
         .then(res => {
           this.postModel = JSON.stringify(res.data);
