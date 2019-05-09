@@ -9,7 +9,7 @@ router.get('/', function (req, res, next) {
             res.send({ success: true, users: users });
         }).catch(err => {
             res.send({ success: false });
-        })
+        });
 });
 
 router.post('/', (req, res, next) => {
@@ -24,16 +24,27 @@ router.post('/', (req, res, next) => {
         });
 });
 
-router.put('/', (req, res, next) => {
-    console.log(req.query)
-    console.log(req.body)
-    res.send({ success: true });
+router.put('/:id', (req, res, next) => { // 가변으로 id parameter를 받아서 처리한다.
+    const id = req.params.id;
+    const { name, age } = req.body;
+
+    UserModel.updateOne({ _id: id }, { $set: { name, age } })
+        .then(r => {
+            res.send({ success: true, msg: r });
+        }).catch(err => {
+            res.send({ success: false, msg: err.message });
+        });
 });
 
-router.delete('/', (req, res, next) => {
-    console.log(req.query)
-    console.log(req.body)
-    res.send({ success: true });
+router.delete('/:id', (req, res, next) => {
+    const id = req.params.id;
+
+    UserModel.deleteOne({ _id: id })
+        .then(r => {
+            res.send({ success: true, msg: r });
+        }).catch(err => {
+            res.send({ success: false, msg: err.message });
+        });
 });
 
 router.all('*', function (req, req, next) {

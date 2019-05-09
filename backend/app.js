@@ -95,13 +95,13 @@ mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, 
   //     console.log(err);
   //   });
 
-  User.deleteMany()
-    .then(res => {
-      console.log(res);
-    })
-    .catch(err => {
-      console.log(err);
-    })
+  // User.deleteMany()
+  //   .then(res => {
+  //     console.log(res);
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //   })
 });
 
 module.exports = app;
