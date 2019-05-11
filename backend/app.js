@@ -109,3 +109,11 @@ mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, 
 });
 
 module.exports = app;
+
+var jwt = require('jsonwebtoken');
+const key = 'key';
+var token = jwt.sign({ id: 'tony', email: 'kis420404@gmail.com' }, key);
+console.log('token => ', token);
+
+var decoded = jwt.verify(token, key);
+console.log('decoded token => ', decoded);
