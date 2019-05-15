@@ -1,3 +1,10 @@
 {
+  "name": "express-mongodb-vue",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "NODE_ENV=development node ./backend/bin/www",
+    "serve": "cd frontend && yarn serve",
+    "prd": "cd frontend && yarn && yarn build && cd ../backend && yarn && cd .. && NODE_ENV=production PORT=80 node ./backend/bin/www"
+  },
   "dependencies": {}
 }

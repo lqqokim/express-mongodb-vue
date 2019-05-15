@@ -192,7 +192,7 @@ export default {
       console.log('CREATE', this.userName, this.userAge);
 
       axios
-        .post("/api/user/", param) 
+        .post(`${this.$apiRootPath}user/`, param) 
         .then(res => {
           this.openNotify(`${this.userName} 등록이 완료 되었습니다.`);
           this.getUsers();
@@ -203,7 +203,7 @@ export default {
     },
     getUsers() {
       axios
-        .get("/api/user/")
+        .get(`${this.$apiRootPath}user/`)
         .then(res => {
           console.log(res);
           this.users = res.data.users;
@@ -219,7 +219,7 @@ export default {
       };
 
       axios
-        .put(`/api/user/${this.updateId}`, param)
+        .put(`${this.$apiRootPath}user/${this.updateId}`, param)
         .then(res => {
           this.openNotify(`${this.userName} 수정이 완료 되었습니다.`);
           this.getUsers();
@@ -230,7 +230,7 @@ export default {
     },
     deleteUser(userId) {
       axios
-        .delete(`/api/user/${userId}`)
+        .delete(`${this.$apiRootPath}user/${userId}`)
         .then(res => {
           this.openNotify(`${this.userName} 삭제가 완료 되었습니다.`);
           this.getUsers();
@@ -241,7 +241,7 @@ export default {
     }
     // getUser() {
     //   axios
-    //     .get("/api/user/")
+    //     .get("${this.$apiRootPath}user/")
     //     .then(res => {
     //       this.getModel = JSON.stringify(res.data);
     //       console.log(res);
@@ -252,7 +252,7 @@ export default {
     // },
     // postUser() {
     //   axios
-    //     .post("/api/user/", {
+    //     .post("${this.$apiRootPath}user/", {
     //       name: "가정",
     //       age: 22
     //     })
@@ -266,7 +266,7 @@ export default {
     // },
     // putUser(userId) {
     //   axios
-    //     .put("/api/user/", {
+    //     .put("${this.$apiRootPath}user/", {
     //       user: "put_user"
     //     })
     //     .then(res => {
@@ -279,7 +279,7 @@ export default {
     // },
     // deleteUser(userId) {
     //   axios
-    //     .delete("/api/user/", {
+    //     .delete("${this.$apiRootPath}user/", {
     //       user: "delet_user"
     //     })
     //     .then(res => {

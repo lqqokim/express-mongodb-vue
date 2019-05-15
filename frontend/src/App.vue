@@ -65,7 +65,7 @@ export default {
       drawer: true,
       fixed: false,
       items: [
-        {
+        { 
           icon: 'bubble_chart',
           title: 'Home',
           path: '/'
@@ -79,7 +79,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: this.$apiRootPath // 'Vuetify.js'
     }
   }
 }

@@ -12,7 +12,11 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+console.log(process.env.PORT);
+//npm run시에 process.env.PORT가 없으면(dev) port 3000, product일때는 process.env.PORT가 80으로 설정되어 있다.
+//http에서 기본 포트는 80포트 이기때문에 80생략가능하다. 
+var port = normalizePort(process.env.PORT || '3000'); 
+console.log(port);
 app.set('port', port);
 
 /**

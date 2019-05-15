@@ -22,7 +22,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // 개발모드 일때만 활성화, 미들웨어 cors 처리
-app.get('env') === 'development' && app.use(cors()); 
+// 웹서버(웹프로젝트)는 8080에 떠있지만 실제로 요청을 받는 API 서버는 3000 포트에서 받고 있기 때문이다. 
+// development 일때 cors가 설정되어 있기 때문에 frontend yarn serve로 8080포트로 서버 포트와 달라도 api 가져올 수 있다.
+
+// app.get('env') === 'development' && app.use(cors()); 
+if(process.env.NODE_ENV !== 'production') app.use(cors());
 
 /**
  * 1. /api , /(root) 이외에 경로들은 모두 Error로 내보낸다.
@@ -35,15 +39,9 @@ app.use('/api', require('./routes/api'));
 // 존재하지 않는 경로일때 서버에서의 처리를 view 단의 페이지에서 처리할 수 있도록 위임한다.
 app.use(history());
 
-/**
- * 1. 실제 웹서버에서 필요한 서비스 페이지 부분
- * 2. vue 페이지가 동작
- */
+
 app.use(express.static(path.join(__dirname, './../', 'frontend', 'dist')));
 
-// 아래는 api 서버 생성시 사용
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -117,3 +115,5 @@ console.log('token => ', token);
 
 var decoded = jwt.verify(token, key);
 console.log('decoded token => ', decoded);
+
+console.log('NODE_ENV TYPE => ', process.env.NODE_ENV); // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
