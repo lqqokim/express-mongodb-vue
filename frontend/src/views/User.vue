@@ -153,7 +153,8 @@ export default {
       userName: "",
       notifyMsg: " ",
       snackbar: false,
-      updateId: 0
+      updateId: 0,
+      localPath: 'http://localhost:3000/'
     };
   },
   mounted() {
@@ -191,7 +192,7 @@ export default {
       console.log('CREATE', this.userName, this.userAge);
 
       axios
-        .post("http://localhost:3000/api/user/", param)
+        .post("/api/user/", param) 
         .then(res => {
           this.openNotify(`${this.userName} 등록이 완료 되었습니다.`);
           this.getUsers();
@@ -202,7 +203,7 @@ export default {
     },
     getUsers() {
       axios
-        .get("http://localhost:3000/api/user/")
+        .get("/api/user/")
         .then(res => {
           console.log(res);
           this.users = res.data.users;
@@ -218,7 +219,7 @@ export default {
       };
 
       axios
-        .put(`http://localhost:3000/api/user/${this.updateId}`, param)
+        .put(`/api/user/${this.updateId}`, param)
         .then(res => {
           this.openNotify(`${this.userName} 수정이 완료 되었습니다.`);
           this.getUsers();
@@ -229,7 +230,7 @@ export default {
     },
     deleteUser(userId) {
       axios
-        .delete(`http://localhost:3000/api/user/${userId}`)
+        .delete(`/api/user/${userId}`)
         .then(res => {
           this.openNotify(`${this.userName} 삭제가 완료 되었습니다.`);
           this.getUsers();
@@ -240,7 +241,7 @@ export default {
     }
     // getUser() {
     //   axios
-    //     .get("http://localhost:3000/api/user/")
+    //     .get("/api/user/")
     //     .then(res => {
     //       this.getModel = JSON.stringify(res.data);
     //       console.log(res);
@@ -251,7 +252,7 @@ export default {
     // },
     // postUser() {
     //   axios
-    //     .post("http://localhost:3000/api/user/", {
+    //     .post("/api/user/", {
     //       name: "가정",
     //       age: 22
     //     })
@@ -265,7 +266,7 @@ export default {
     // },
     // putUser(userId) {
     //   axios
-    //     .put("http://localhost:3000/api/user/", {
+    //     .put("/api/user/", {
     //       user: "put_user"
     //     })
     //     .then(res => {
@@ -278,7 +279,7 @@ export default {
     // },
     // deleteUser(userId) {
     //   axios
-    //     .delete("http://localhost:3000/api/user/", {
+    //     .delete("/api/user/", {
     //       user: "delet_user"
     //     })
     //     .then(res => {

@@ -10,12 +10,12 @@
       app
     >
       <v-list>
-        <v-list-tile value="true" v-for="(item, i) in items" :key="i">
+        <v-list-tile value="true" v-for="(item, i) in items" :key="i" :to="item.path">
           <v-list-tile-action>
             <v-icon v-html="item.icon"></v-icon>
           </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
+          <v-list-tile-content >
+            <v-list-tile-title v-text="item.title" ></v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -67,11 +67,13 @@ export default {
       items: [
         {
           icon: 'bubble_chart',
-          title: 'Inspire'
+          title: 'Home',
+          path: '/'
         },
         {
           icon: 'help',
-          title: 'about'
+          title: 'CRUD 테스트',
+          path: '/user'
         }
       ],
       miniVariant: false,
