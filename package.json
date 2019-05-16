@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "NODE_ENV=development node ./backend/bin/www",
     "serve": "cd frontend && yarn serve",
-    "prd": "cd frontend && yarn && yarn build && cd ../backend && yarn && cd .. && NODE_ENV=production PORT=80 node ./backend/bin/www"
+    "prd": "cd frontend && yarn && yarn build && cd ../backend && yarn && cd .. && NODE_ENV=production PORT=80 node ./backend/bin/www",
+    "pm2": "cd frontend && yarn && yarn build && cd ../backend && yarn && cd .. && pm2 start --env pr"
   },
   "dependencies": {}
 }
