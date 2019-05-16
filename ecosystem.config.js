@@ -20,7 +20,7 @@ module.exports = {
   }],
 
   deploy : { //핵심, 서버에 보내는 정보
-    production : {
+    pr : {
       user : 'root',
       host : '133.186.159.89',
       key  : '~/keys/EVB_KEY.pem', 
