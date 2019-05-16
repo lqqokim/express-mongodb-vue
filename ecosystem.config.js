@@ -1,5 +1,5 @@
 module.exports = {
-  apps : [{
+  apps: [{
     name: 'ExpressVueBoard',
     script: './backend/bin/www', // 실행파일 위치 지정
 
@@ -19,16 +19,17 @@ module.exports = {
     }
   }],
 
-  deploy : { //핵심, 서버에 보내는 정보
-    pr : {
-      user : 'centos',
-      host : '133.186.159.89', 
-      key  : '../keys/EVB_KEY.pem', 
-      ref  : 'origin/master',
-      repo : 'git@github.com:lqqokim/express-mongodb-vue.git',
-      path : '/var/www/express-mongodb-vue',
-      'post-deploy' : 'yarn pm2',
-      // 'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
+  deploy: { //핵심, 서버에 보내는 정보
+    pr: {
+      user: 'root',
+      host: '133.186.159.89',
+      key: '~/keys/EVB_KEY.pem',
+      ref: 'origin/master',
+      repo: 'git@github.com:lqqokim/ExpressVueBoard.git',
+      path: '/var/www/ExpressVueBoard',
+      'post-deploy': 'yarn pm2',
     }
   }
 };
+// 'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
+
