@@ -21,7 +21,7 @@ module.exports = {
 
   deploy : { //핵심, 서버에 보내는 정보
     pr : {
-      user : 'root',
+      user : 'centos',
       host : '133.186.159.89', 
       key  : '../keys/EVB_KEY.pem', 
       ref  : 'origin/master',
