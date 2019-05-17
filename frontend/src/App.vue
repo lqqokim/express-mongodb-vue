@@ -66,12 +66,12 @@ export default {
       fixed: false,
       items: [
         { 
-          icon: 'bubble_chart',
+          icon: 'home',
           title: 'Home',
           path: '/'
         },
         {
-          icon: 'help',
+          icon: 'face',
           title: 'CRUD 테스트',
           path: '/user'
         }
