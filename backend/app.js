@@ -26,7 +26,7 @@ app.use(cookieParser());
 // development 일때 cors가 설정되어 있기 때문에 frontend yarn serve로 8080포트로 서버 포트와 달라도 api 가져올 수 있다.
 
 // app.get('env') === 'development' && app.use(cors()); 
-if(process.env.NODE_ENV !== 'production') app.use(cors());
+if (process.env.NODE_ENV !== 'production') app.use(cors());
 
 /**
  * 1. /api , /(root) 이외에 경로들은 모두 Error로 내보낸다.
@@ -64,7 +64,13 @@ app.use(function (err, req, res, next) {
 const mongoose = require('mongoose');
 const User = require('./models/users');
 
-mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, (err) => {
+console.log(process.env.NODE_ENV + 'started!!!'); // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
+
+const config = require('../config');
+console.log(config);
+
+// mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, (err) => {
+mongoose.connect(config.dbUrl, { useNewUrlParser: true }, (err) => {
   if (err) return console.error(err);
   console.log('mongoose connected!');
 
@@ -108,12 +114,10 @@ mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, 
 
 module.exports = app;
 
-var jwt = require('jsonwebtoken');
-const key = 'key';
-var token = jwt.sign({ id: 'tony', email: 'kis420404@gmail.com' }, key);
-console.log('token => ', token);
+// var jwt = require('jsonwebtoken');
+// const key = 'key';
+// var token = jwt.sign({ id: 'tony', email: 'kis420404@gmail.com' }, key);
+// console.log('token => ', token);
 
-var decoded = jwt.verify(token, key);
-console.log('decoded token => ', decoded);
-
-console.log('NODE_ENV TYPE => ', process.env.NODE_ENV); // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
+// var decoded = jwt.verify(token, key);
+// console.log('decoded token => ', decoded);
