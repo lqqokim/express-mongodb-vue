@@ -114,10 +114,11 @@ mongoose.connect(config.dbUrl, { useNewUrlParser: true }, (err) => {
 
 module.exports = app;
 
-// var jwt = require('jsonwebtoken');
-// const key = 'key';
-// var token = jwt.sign({ id: 'tony', email: 'kis420404@gmail.com' }, key);
-// console.log('token => ', token);
+var jwt = require('jsonwebtoken');
+const key = 'key';
+var token = jwt.sign({ id: 'tony', email: 'kis420404@gmail.com' }, key);
+console.log('token => ', token);
 
-// var decoded = jwt.verify(token, key);
-// console.log('decoded token => ', decoded);
+var decoded = jwt.verify(token, key);
+console.log(new Date(decoded.iat * 1000)) // 토큰 발행 시간
+console.log('decoded token => ', decoded);
