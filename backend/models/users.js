@@ -1,34 +1,33 @@
 
 const mongoose = require('mongoose');
+const config = require('../../config');
+
 mongoose.set('useCreateIndex', true);
+
 const userSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      default: '',
-      unique: true, // 동일한 name의 값 insert시에 error
-      index: true // 검색 속도 향상
-    },
-    age: {
-      type: Number,
-      default: 1
-    }
-  });
-  
-  const User = mongoose.model('User', userSchema);
-  const users = [
-    {
-        name: 'Vue',
-        age: 20
-    },
-    {
-        name: 'React',
-        age: 30
-    },
-    {
-        name: 'Angular',
-        age: 25
-    }
-];
+    id: { type: String, default: '', unique: true, index: true },
+    pwd: { type: String, default: '' },
+    name: { type: String, default: '' },
+    age: { type: Number, default: 1 },
+    retry: { type: Number, default: 0 }
+});
+
+const User = mongoose.model('User', userSchema);
+// User.collection.dropIndexes({ name: 1 })
+
+const createUser = (user) => {
+    if(!user) return User.create({ id: config.admin.id, pwd: config.admin.pwd, name: config.admin.name })
+    return null
+}
+
+User.findOne({ id: config.admin.id })
+    .then(user => {
+       return createUser(user);
+    }).then(user => {
+        if(user) console.log(`admin:${user.id} created!!!`);
+    }).catch(err => {
+        console.error(err.message);
+    })
 
 // User.create(users).then(res => {
 //       console.log(res);
@@ -36,4 +35,4 @@ const userSchema = new mongoose.Schema({
 //       console.log(err);
 //   })
 
-  module.exports = User;
+module.exports = User;

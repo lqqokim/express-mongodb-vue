@@ -4,7 +4,6 @@ var router = express.Router();
 
 
 router.get('/hello', function (req, res, next) {
-    console.log(req.headers);
     res.send({ msg: 'hello', a: 1 });
 });
 
