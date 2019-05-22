@@ -1,86 +1,26 @@
 <template>
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
-      <!-- <v-flex xs12 sm3 v-for="(user, index) in users" :key="index"> -->
-      <!-- <v-img :src="user.img" aspect-ratio="2.75"></v-img> -->
-
-      <!-- card 목록 -->
-      <!-- <v-flex xs12 sm3>
-        <v-card>
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">get</h3>
-            </div>
-          </v-card-title>
-          <v-card-text>
-            <v-textarea v-model="getModel"></v-textarea>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn flat color="orange" @click="getUser()">submit</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-
-      <v-flex xs12 sm3>
-        <v-card>
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">post</h3>
-            </div>
-          </v-card-title>
-          <v-card-text>
-            <v-textarea v-model="postModel"></v-textarea>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn flat color="orange" @click="postUser()">submit</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-
-      <v-flex xs12 sm3>
-        <v-card>
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">put</h3>
-            </div>
-          </v-card-title>
-          <v-card-text>
-            <v-textarea v-model="putModel"></v-textarea>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn flat color="orange" @click="putUser()">submit</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-
-      <v-flex xs12 sm3>
-        <v-card>
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">delete</h3>
-            </div>
-          </v-card-title>
-          <v-card-text>
-            <v-textarea v-model="deleteModel"></v-textarea>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn flat color="orange" @click="deleteUser()">submit</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>-->
-
       <v-flex xs12 sm6 md4 v-for="user in users" :key="user._id">
         <v-card>
           <v-card-title primary-title>
             <div>
-              <h3 class="headline mb-0">{{ user.name }}</h3>
-              <div>{{ user.age }}</div>
+              <h3 class="headline mb-0">{{ user.id }}</h3>
             </div>
           </v-card-title>
+
+          <v-divider light></v-divider>
+
+          <v-card-title>
+            <div class="userInfo">
+              <div>이름: {{user.name}}</div>
+              <div>권한: {{user.level}}</div>
+              <div>나이: {{user.age}}</div>
+              <div>로그인 횟수: {{user.loginCnt}}</div>
+            </div>
+          </v-card-title>
+
+          <v-divider light></v-divider>
 
           <v-card-actions>
             <v-btn flat color="orange" @click="openUpdateModal(user)">수정</v-btn>
@@ -89,9 +29,9 @@
         </v-card>
       </v-flex>
 
-      <v-btn fab dark bottom right absolute color="indigo" @click="openModal()">
+      <!-- <v-btn fab dark bottom right absolute color="indigo" @click="openModal()">
         <v-icon dark>add</v-icon>
-      </v-btn>
+      </v-btn>-->
     </v-layout>
 
     <!-- Modal -->
@@ -104,26 +44,24 @@
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12 sm6 md4>
-                <v-text-field
-                  label="Legal last name*"
-                  hint="example of persistent helper text"
-                  persistent-hint
-                  required
-                  v-model="userName"
-                ></v-text-field>
+                <v-text-field label="이름" hint="홍길동" persistent-hint required v-model="userName"></v-text-field>
               </v-flex>
               <v-flex xs12 sm6>
-                <v-select :items="userAges" label="Age*" required v-model="userAge"></v-select>
+                <v-select :items="userLevels" label="권한" required v-model="userLevel"></v-select>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-select :items="userAges" label="나이" required v-model="userAge"></v-select>
               </v-flex>
             </v-layout>
           </v-container>
-          <small>*indicates required field</small>
+          <!-- <small>*indicates required field</small> -->
         </v-card-text>
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" flat @click="updateUser(); dialog = false">수정</v-btn>
           <v-btn color="blue darken-1" flat @click="dialog = false">Close</v-btn>
-          <v-btn color="blue darken-1" flat @click="createUser(); dialog = false">Save</v-btn>
+          <!-- <v-btn color="blue darken-1" flat @click="createUser(); dialog = false">Save</v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -137,16 +75,10 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   data() {
     return {
       users: [],
-      getModel: "",
-      postModel: "",
-      putModel: "",
-      deleteModel: "",
       dialog: false,
       userAges: [],
       userAge: 0,
@@ -154,7 +86,9 @@ export default {
       notifyMsg: " ",
       snackbar: false,
       updateId: 0,
-      localPath: 'http://localhost:3000/'
+
+      userLevel: 0,
+      userLevels: [0, 1, 2, 3]
     };
   },
   mounted() {
@@ -170,8 +104,8 @@ export default {
   },
   methods: {
     openModal() {
-      this.userName = '';
-      this.userAge = '';
+      this.userName = "";
+      this.userAge = "";
       this.dialog = true;
     },
     openNotify(msg) {
@@ -183,16 +117,17 @@ export default {
       this.userName = user.name;
       this.userAge = user.age;
       this.dialog = true;
+      this.userLevel = user.level;
     },
     createUser() {
       const param = {
         name: this.userName,
         age: this.userAge
       };
-      console.log('CREATE', this.userName, this.userAge);
+      console.log("CREATE", this.userName, this.userAge);
 
-      axios
-        .post(`${this.$apiRootPath}user/`, param) 
+      this.$axios
+        .post(`${this.$apiRootPath}user/`, param)
         .then(res => {
           this.openNotify(`${this.userName} 등록이 완료 되었습니다.`);
           this.getUsers();
@@ -202,8 +137,8 @@ export default {
         });
     },
     getUsers() {
-      axios
-        .get(`${this.$apiRootPath}user/`)
+      this.$axios
+        .get(`${this.$apiRootPath}manage/user/`)
         .then(res => {
           console.log(res);
           this.users = res.data.users;
@@ -215,11 +150,12 @@ export default {
     updateUser() {
       const param = {
         name: this.userName,
-        age: this.userAge
+        age: this.userAge,
+        level: this.userLevel
       };
 
-      axios
-        .put(`${this.$apiRootPath}user/${this.updateId}`, param)
+      this.$axios
+        .put(`${this.$apiRootPath}manage/user/${this.updateId}`, param)
         .then(res => {
           this.openNotify(`${this.userName} 수정이 완료 되었습니다.`);
           this.getUsers();
@@ -229,7 +165,7 @@ export default {
         });
     },
     deleteUser(userId) {
-      axios
+      this.$axios
         .delete(`${this.$apiRootPath}user/${userId}`)
         .then(res => {
           this.openNotify(`${this.userName} 삭제가 완료 되었습니다.`);
@@ -239,57 +175,13 @@ export default {
           this.openNotify(err.message);
         });
     }
-    // getUser() {
-    //   axios
-    //     .get("${this.$apiRootPath}user/")
-    //     .then(res => {
-    //       this.getModel = JSON.stringify(res.data);
-    //       console.log(res);
-    //     })
-    //     .catch(err => {
-    //       console.error(err.message);
-    //     });
-    // },
-    // postUser() {
-    //   axios
-    //     .post("${this.$apiRootPath}user/", {
-    //       name: "가정",
-    //       age: 22
-    //     })
-    //     .then(res => {
-    //       this.postModel = JSON.stringify(res.data);
-    //       console.log(res);
-    //     })
-    //     .catch(err => {
-    //       console.error(err.message);
-    //     });
-    // },
-    // putUser(userId) {
-    //   axios
-    //     .put("${this.$apiRootPath}user/", {
-    //       user: "put_user"
-    //     })
-    //     .then(res => {
-    //       this.putModel = JSON.stringify(res.data);
-    //       console.log(res);
-    //     })
-    //     .catch(err => {
-    //       console.error(err.message);
-    //     });
-    // },
-    // deleteUser(userId) {
-    //   axios
-    //     .delete("${this.$apiRootPath}user/", {
-    //       user: "delet_user"
-    //     })
-    //     .then(res => {
-    //       this.deleteModel = JSON.stringify(res.data);
-    //       console.log(res);
-    //     })
-    //     .catch(err => {
-    //       console.error(err.message);
-    //     });
-    // },
   }
 };
 </script>
+
+<style scoped>
+  .userInfo {
+    text-align: left;
+  }
+</style>
+

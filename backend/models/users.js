@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
     pwd: { type: String, default: '' },
     name: { type: String, default: '' },
     age: { type: Number, default: 1 },
-    retry: { type: Number, default: 0 }
+    retry: { type: Number, default: 0 },
+    level: { type: Number, default: 2 },
+    loginCnt: { type: Number, default: 0 }
 });
 
 const User = mongoose.model('User', userSchema);

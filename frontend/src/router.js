@@ -11,8 +11,23 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
+      name: 'level0',
+      component: () => import('./views/Level0.vue')
+    },
+    {
+      path: '/level1',
+      name: 'level1',
+      component: () => import('./views/Level1.vue')
+    },
+    {
+      path: '/level2',
+      name: 'level2',
+      component: () => import('./views/Level2.vue')
+    },
+    {
+      path: '/level3',
+      name: 'level3',
+      component: () => import('./views/Level3.vue')
     },
     {
       path: '/user',
@@ -23,13 +38,23 @@ export default new Router({
       component: () => import(/* webpackChunkName: "about" */ './views/User.vue')
     },
     {
-      path: '/header',
-      name: '헤더',
-      component: () => import('./views/Header.vue'),
-      beforeEnter: (to, from, next) => {
-        if(!localStorage.getItem('token')) return next('block')
-        next()
-      }
+      path: '/page',
+      name: '페이지',
+      component: () => import('./views/Page.vue')
+    },
+    // {
+    //   path: '/header',
+    //   name: '헤더',
+    //   component: () => import('./views/Header.vue'),
+    //   beforeEnter: (to, from, next) => {
+    //     if(!localStorage.getItem('token')) return next('block')
+    //     next()
+    //   }
+    // },
+    {
+      path: '/block',
+      name: '차단',
+      component: () => import('./views/Block.vue')
     },
     {
       path: '/sign',

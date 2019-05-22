@@ -50,9 +50,30 @@ export default {
       items: [
         {
           icon: "home",
-          title: "홈aaa",
+          title: "level0",
           to: {
             path: "/"
+          }
+        },
+        {
+          icon: "home",
+          title: "level1",
+          to: {
+            path: "/level1"
+          }
+        },
+        {
+          icon: "home",
+          title: "level2",
+          to: {
+            path: "/level2"
+          }
+        },
+        {
+          icon: "home",
+          title: "level3",
+          to: {
+            path: "/level3"
           }
         },
         {
@@ -64,9 +85,9 @@ export default {
         },
         {
           icon: "face",
-          title: "header",
+          title: "페이지관리",
           to: {
-            path: "/header"
+            path: "/page"
           }
         }
       ],
@@ -76,7 +97,7 @@ export default {
   mounted() {},
   methods: {
     signOut() {
-      this.$store.commit('deleteToken')
+      this.$store.commit("deleteToken");
       // localStorage.removeItem("token"); // 로그아웃 하면 토큰 날린다.
       this.$router.push("/");
     }
