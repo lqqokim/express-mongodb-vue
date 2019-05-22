@@ -1,86 +1,85 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      persistent
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      v-model="drawer"
-      enable-resize-watcher
-      fixed
-      app
-    >
+    <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
-        <v-list-tile value="true" v-for="(item, i) in items" :key="i" :to="item.path">
+        <v-list-tile value="true" v-for="(item, i) in items" :key="i" :to="item.to">
           <v-list-tile-action>
             <v-icon v-html="item.icon"></v-icon>
           </v-list-tile-action>
-          <v-list-tile-content >
-            <v-list-tile-title v-text="item.title" ></v-list-tile-title>
+          <v-list-tile-content>
+            <v-list-tile-title v-text="item.title"></v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar app :clipped-left="clipped">
+    <v-toolbar app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>web</v-icon>
-      </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
+      <v-toolbar-items>
+        <v-menu bottom left>
+          <v-btn icon slot="activator">
+            <v-icon>more_vert</v-icon>
+          </v-btn>
+          <v-list>
+            <v-list-tile v-if="!$store.state.token" @click="$router.push('sign')">
+              <v-list-tile-title>로그인</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile v-else @click="signOut">
+              <v-list-tile-title>로그아웃</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <router-view/>
     </v-content>
-    <v-navigation-drawer temporary :right="right" v-model="rightDrawer" fixed app>
-      <v-list>
-        <v-list-tile @click="right = !right">
-          <v-list-tile-action>
-            <v-icon>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
+    <v-footer fixed app>
+      <span>&copy; 2017 {{$store.state.token}}</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
-  name: 'App',
-  data () {
+  name: "App",
+  data() {
     return {
-      clipped: false,
-      drawer: true,
-      fixed: false,
+      drawer: null,
       items: [
-        { 
-          icon: 'home',
-          title: 'Home',
-          path: '/'
+        {
+          icon: "home",
+          title: "홈aaa",
+          to: {
+            path: "/"
+          }
         },
         {
-          icon: 'face',
-          title: 'CRUD 테스트',
-          path: '/user'
+          icon: "face",
+          title: "CRUD 테스트",
+          to: {
+            path: "/user"
+          }
+        },
+        {
+          icon: "face",
+          title: "header",
+          to: {
+            path: "/header"
+          }
         }
       ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: this.$apiRootPath // 'Vuetify.js'
+      title: this.$apiRootPath
+    };
+  },
+  mounted() {},
+  methods: {
+    signOut() {
+      this.$store.commit('deleteToken')
+      // localStorage.removeItem("token"); // 로그아웃 하면 토큰 날린다.
+      this.$router.push("/");
     }
   }
-}
+};
 </script>

@@ -25,7 +25,11 @@ export default new Router({
     {
       path: '/header',
       name: '헤더',
-      component: () => import('./views/Header.vue')
+      component: () => import('./views/Header.vue'),
+      beforeEnter: (to, from, next) => {
+        if(!localStorage.getItem('token')) return next('block')
+        next()
+      }
     },
     {
       path: '/sign',
