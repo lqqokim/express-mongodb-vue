@@ -12,8 +12,8 @@
           <v-divider light></v-divider>
           <v-card-title primary-title>
             <div>
-              <div>권한: {{page.lv}}</div>
-              <div>진입 횟수: {{page.inCnt}}</div>
+              <div>권한: {{page.level}}</div>
+              <div>진입 횟수: {{page.loginCnt}}</div>
             </div>
           </v-card-title>
           <v-divider light></v-divider>
@@ -77,6 +77,7 @@ export default {
       this.$axios
         .get(`${this.$apiRootPath}manage/page`)
         .then(r => {
+          console.log('pages result -> ', r)
           this.pages = r.data.pages;
         })
         .catch(e => {
@@ -87,14 +88,14 @@ export default {
       this.putId = page._id;
       this.dialog = true;
       this.pageName = page.name;
-      this.pageLv = page.lv;
+      this.pageLv = page.level;
     },
     putPage() {
       this.dialog = false;
       this.$axios
         .put(`${this.$apiRootPath}manage/page/${this.putId}`, {
           name: this.pageName,
-          lv: this.pageLv
+          level: this.pageLv
         })
         .then(r => {
           this.pop("페이지 수정 완료");

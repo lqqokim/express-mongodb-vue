@@ -7,9 +7,9 @@ const config = require('../../../../config')
 const User = require('../../../models/users')
 
 // id, age, privateKey를 기반으로 token 생성
-const createSignToken = (id, age) => {
+const createSignToken = (id, age, level) => {
     return new Promise((resolve, reject) => {
-        jwt.sign({ id, age }, config.secretKey, (err, token) => {
+        jwt.sign({ id, age, level }, config.secretKey, (err, token) => {
             if (err) reject(err)
             resolve(token)
         });
@@ -25,9 +25,10 @@ router.post('/in', (req, res) => {
     //   res.send({ success: true, token: 'temp token!!' })
     User.findOne({id})
         .then(result => {
-            if(!result ) throw new Error('존재하지 않는 아이디입니다.')
+            console.log('findOne => ', result)
+            if(!result) throw new Error('존재하지 않는 아이디입니다.')
             if(result.pwd !== pwd) throw new Error('비밀번호가 틀립니다.')
-            return createSignToken(result.id, result.age)
+            return createSignToken(result.id, result.age, result.level)
         })
         .then(result => res.send({ success: true, token: result}))
         .catch(err => res.send({ success: false, msg: err.message}))

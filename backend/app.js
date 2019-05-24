@@ -50,7 +50,7 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-  console.log(req)
+  // console.log(req)
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -67,7 +67,7 @@ const User = require('./models/users');
 console.log(process.env.NODE_ENV + 'started!!!'); // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
 
 const config = require('../config');
-console.log(config);
+// console.log(config);
 
 // mongoose.connect('mongodb://localhost:27017/emv_db', { useNewUrlParser: true }, (err) => {
 mongoose.connect(config.dbUrl, { useNewUrlParser: true }, (err) => {

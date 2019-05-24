@@ -78,7 +78,7 @@ export default {
         },
         {
           icon: "face",
-          title: "CRUD 테스트",
+          title: "사용자관리",
           to: {
             path: "/user"
           }

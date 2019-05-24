@@ -18,15 +18,25 @@ const User = mongoose.model('User', userSchema);
 // User.collection.dropIndexes({ name: 1 })
 
 const createUser = (user) => {
-    if(!user) return User.create({ id: config.admin.id, pwd: config.admin.pwd, name: config.admin.name })
+    if (!user) return User.create({ id: config.admin.id, pwd: config.admin.pwd, name: config.admin.name, level: 0 })
     return null
 }
 
 User.findOne({ id: config.admin.id })
     .then(user => {
-       return createUser(user);
+        return createUser(user);
     }).then(user => {
-        if(user) console.log(`admin:${user.id} created!!!`);
+        if (user) console.log(`admin:${user.id} created!!!`, user);
+    }).catch(err => {
+        console.error(err.message);
+    })
+
+User.findOne({ id: 'level2' })
+    .then(user => {
+        if (!user) return User.create({ id: 'level2', pwd: 1234, name: 'level2', level: 2 })
+        return null
+    }).then(user => {
+        if (user) console.log(`admin:${user.id} created!!!`, user);
     }).catch(err => {
         console.error(err.message);
     })
