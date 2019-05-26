@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :dark="siteDark">
     <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher fixed app>
       <v-list>
         <v-list-tile value="true" v-for="(item, i) in items" :key="i" :to="item.to">
@@ -14,7 +14,7 @@
     </v-navigation-drawer>
     <v-toolbar app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+      <v-toolbar-title v-text="siteTitle"></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-menu bottom left>
@@ -22,7 +22,7 @@
             <v-icon>more_vert</v-icon>
           </v-btn>
           <v-list>
-            <v-list-tile v-if="!$store.state.token" @click="$router.push('sign')">
+            <v-list-tile v-if="!$store.state.token" @click="$router.push('/sign')">
               <v-list-tile-title>로그인</v-list-tile-title>
             </v-list-tile>
             <v-list-tile v-else @click="signOut">
@@ -36,7 +36,7 @@
       <router-view/>
     </v-content>
     <v-footer fixed app>
-      <span>&copy; 2017 {{$store.state.token}}</span>
+      <span>{{siteCopyright}}</span>
     </v-footer>
   </v-app>
 </template>
@@ -47,6 +47,9 @@ export default {
   data() {
     return {
       drawer: null,
+      siteTitle: '',
+      siteCopyright: '',
+      siteDark: false,
       items: [
         {
           icon: "home",
@@ -89,13 +92,30 @@ export default {
           to: {
             path: "/page"
           }
+        },
+        {
+          icon: "face",
+          title: "사이트관리",
+          to: {
+            path: "/site"
+          }
         }
       ],
       title: this.$apiRootPath
     };
   },
-  mounted() {},
+  mounted() {
+    this.getSite();
+  },
   methods: {
+    getSite() {
+      this.$axios.get("site").then(result => {
+        const data = result.data.d;
+        this.siteTitle = data.title;
+        this.siteCopyright = data.copyright;
+        this.siteDark = data.dark;
+      });
+    },
     signOut() {
       this.$store.commit("deleteToken");
       // localStorage.removeItem("token"); // 로그아웃 하면 토큰 날린다.

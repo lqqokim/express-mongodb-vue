@@ -6,12 +6,43 @@ import Home from './views/Home.vue'
 
 Vue.use(Router)
 
-Vue.prototype.$axios = axios
+
+Vue.prototype.$axios = axios;
+// Vue.prototype.$store = store;
+
 const apiRootPath = process.env.NODE_ENV !== 'production' ? 'http://localhost:3000/api/' : '/api/'
-Vue.prototype.$apiRootPath = apiRootPath
+Vue.prototype.$apiRootPath = apiRootPath;
+axios.defaults.baseURL = apiRootPath;
+
+// axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
+
+// Add a request interceptor
+axios.interceptors.request.use(function (config) {
+  // console.log(config)
+  // Do something before request is sent
+  config.headers.Authorization = localStorage.getItem('token');
+  return config;
+}, function (error) {
+  // Do something with request error
+  return Promise.reject(error);
+});
+
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+  // console.log(response)
+  // Do something with response data
+  if(response.data.token) {
+    localStorage.setItem('token', response.data.token);
+    // this.$store.commit('getToken');
+  }
+  return response;
+}, function (error) {
+  // Do something with response error
+  return Promise.reject(error);
+});
 
 const pageCheck = (to, from, next) => {
-  axios.post(`${apiRootPath}page`, { name: to.name }, { headers: { Authorization: localStorage.getItem('token') } })
+  axios.post(`${apiRootPath}page`, { name: to.name })
     .then((result) => {
       console.log('pageCheck => ', result)
       if (!result.data.success) throw new Error(result.data.msg)
@@ -53,16 +84,25 @@ export default new Router({
     },
     {
       path: '/user',
-      name: '사용자',
+      name: 'user',
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/User')
+      component: () => import(/* webpackChunkName: "about" */ './views/User'),
+      beforeEnter: pageCheck
+
     },
     {
       path: '/page',
-      name: '페이지',
-      component: () => import('./views/Page')
+      name: 'page',
+      component: () => import('./views/Page'),
+      beforeEnter: pageCheck
+    },
+    {
+      path: '/site',
+      name: 'site',
+      component: () => import('./views/Site'),
+      beforeEnter: pageCheck
     },
     // {
     //   path: '/header',
@@ -74,14 +114,14 @@ export default new Router({
     //   }
     // },
     {
-      path: '/block/:msg',
-      name: '차단',
-      component: () => import('./views/Block.vue')
-    },
-    {
       path: '/sign',
       name: 'sign',
       component: () => import('./views/Sign.vue')
+    },
+    {
+      path: '/block/:msg',
+      name: '차단',
+      component: () => import('./views/Block.vue')
     },
     {
       path: '*',

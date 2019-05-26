@@ -12,6 +12,7 @@ const config = require('../../../config')
 
 // 토큰 검사하는 미들웨어는 토큰이 있을때만 들어와야되기 때문에 sign이 더 위에 있다.
 router.use('/sign', require('./sign'))
+router.use('/site', require('./site'))
 console.log('**************')
 console.log('*****SIGN*****')
 console.log('**************')
@@ -35,10 +36,10 @@ router.all('*', (req, res, next) => {
 // token 검사
 const verifyToken = (token) => {
     return new Promise((resolve, reject) => {
-        console.log('verifyToken => ', token);
+        // console.log('verifyToken => ', token);
         if (!token) resolve({ id: 'guest', name: '손님', level: 3 }) // token이 없으면 손님
         if ((typeof token) !== 'string') reject(new Error('문자가 아닌 토큰 입니다.'))
-        if(token.length < 10) resolve({ id: 'guest', name: '손님', level: 3 }) // for  'null'
+        if (token.length < 10 && token === 'null') resolve({ id: 'guest', name: '손님', level: 3 }) // for  'null'
 
         jwt.verify(token, config.secretKey, (err, verifiedToken) => {
             if (err) reject(err)
@@ -47,30 +48,20 @@ const verifyToken = (token) => {
     })
 }
 
+// 회원 level에 따른 Page 권환 체크
 router.use('/page', require('./page'));
 console.log('**************')
 console.log('*****PAGE*****')
 console.log('**************')
 
-router.use('/manage', require('./manage')); // page체크 이후에 manage
-
+// 관리자가 관리용으로 사용하는 api
+router.use('/manage', require('./manage'));
 console.log('**************')
-console.log('*****MANAGE*****')
+console.log('****MANAGE****')
 console.log('**************')
-
-// router.use('/user', require('./user'));
-
-router.all('*', function (req, res, next) {
-    // 또 검사해도 됨
-    if (req.user.level > 2) return res.send({ success: false, msg: '권한이 없습니다.' })
-    next()
-})
 
 router.use('/test', require('./test'));
-// router.use('/user', require('./user'));
-
 router.all('*', function (req, res, next) {
-    // 또 검사해도 됨
     if (req.user.level > 0) return res.send({ success: false, msg: '권한이 없습니다.' })
     next()
 })
