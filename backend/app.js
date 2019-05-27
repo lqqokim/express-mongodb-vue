@@ -122,3 +122,11 @@ module.exports = app;
 // var decoded = jwt.verify(token, key);
 // console.log(new Date(decoded.iat * 1000)) // 토큰 발행 시간
 // console.log('decoded token => ', decoded);
+
+// const crypto = require('crypto');
+// // Using the factory defaults.
+// const key1 = crypto.scryptSync('secret', 'salt', 64);
+// console.log(key1.toString('hex'));  // '3745e48...08d59ae'
+// // Using a custom N parameter. Must be a power of two.
+// const key2 = crypto.scryptSync('secret', 'salt', 64);
+// console.log(key2.toString('hex'));  // '3745e48...aa39b34'

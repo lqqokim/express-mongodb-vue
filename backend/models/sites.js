@@ -19,7 +19,7 @@ Site.findOne()
         return Promise.resolve(result);
     })
     .then(result => {
-        if(result) console.log(result.title + 'created!!!');
+        if(result) console.log(result.title + ' created!!!');
     })
     .catch(e => console.error(e.message));
 

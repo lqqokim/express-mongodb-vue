@@ -3,6 +3,7 @@ var createError = require('http-errors');
 var router = express.Router();
 
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto');
 const config = require('../../../../config')
 const User = require('../../../models/users')
 
@@ -20,19 +21,22 @@ const createSignToken = (id, level, name) => {
 // 로그인 시
 router.post('/in', (req, res) => {
     const { id, pwd } = req.body
-    if (!id) return res.send({ success: false, msg: '아이디가 없습니다.' })
-    if (!pwd) return res.send({ success: false, msg: '비밀번호가 없습니다.' })
+    if (!id) return res.send({ success: false, msg: '아이디가 없습니다.' });
+    if (!pwd) return res.send({ success: false, msg: '비밀번호가 없습니다.' });
 
     //   res.send({ success: true, token: 'temp token!!' })
-    User.findOne({id})
+    User.findOne({ id })
         .then(result => {
-            console.log('findOne => ', result)
-            if(!result) throw new Error('존재하지 않는 아이디입니다.')
-            if(result.pwd !== pwd) throw new Error('비밀번호가 틀립니다.')
-            return createSignToken(result.id, result.level, result.name)
+            if (!result) throw new Error('존재하지 않는 아이디입니다.');
+
+            // 단방향 함수 사용하여 회원가입했을때 저장한 cryptopwd와 로그인했을때 cryptopwd 비교하여 처리한다.
+            const cryptopwd = crypto.scryptSync(pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
+
+            if (result.pwd !== cryptopwd) throw new Error('비밀번호가 틀립니다.');
+            return createSignToken(result.id, result.level, result.name);
         })
-        .then(result => res.send({ success: true, token: result}))
-        .catch(err => res.send({ success: false, msg: err.message}))
+        .then(result => res.send({ success: true, token: result }))
+        .catch(err => res.send({ success: false, msg: err.message }));
 })
 
 router.post('/out', (req, res) => {

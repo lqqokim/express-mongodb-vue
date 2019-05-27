@@ -38,7 +38,7 @@ router.put('/:id', (req, res, next) => { // 가변으로 id parameter를 받아�
 
 router.delete('/:id', (req, res, next) => {
     const id = req.params.id;
-
+    
     UserModel.deleteOne({ _id: id })
         .then(r => {
             res.send({ success: true, msg: r });

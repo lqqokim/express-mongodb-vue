@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 router.put('/:_id', (req, res, next) => {
   const _id = req.params._id
   // console.log('put => ', _id)
-  console.log(req.body)
+  // console.log(req.body)
   Page.updateOne({ _id }, { $set: req.body})
     .then(r => {
       res.send({ success: true, msg: r, token: req.token })

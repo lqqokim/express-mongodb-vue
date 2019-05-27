@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 const config = require('../../config');
+const crypto = require('crypto');
 
 mongoose.set('useCreateIndex', true);
 
@@ -19,32 +20,28 @@ const User = mongoose.model('User', userSchema);
 
 const createUser = (user) => {
     if (!user) return User.create({ id: config.admin.id, pwd: config.admin.pwd, name: config.admin.name, level: 0 })
-    return null
+    return null // Promise.resolve 처리 안해도 then은 기본적으로 Promise 값을 반환
 }
 
 User.findOne({ id: config.admin.id })
     .then(user => {
+        // return createUser(user);
         return createUser(user);
-    }).then(user => {
-        if (user) console.log(`admin:${user.id} created!!!`, user);
-    }).catch(err => {
-        console.error(err.message);
     })
+    .then(result => {
+        console.log(result);
+        if (!result) Promise.resolve(null);
+        if (result.pwd !== config.admin.pwd) return Promise.resolve(null);
+        if (result) console.log(`admin:${result.id} created!!!`, result);
 
-User.findOne({ id: 'level2' })
-    .then(user => {
-        if (!user) return User.create({ id: 'level2', pwd: 1234, name: 'level2', level: 2 })
-        return null
-    }).then(user => {
-        if (user) console.log(`admin:${user.id} created!!!`, user);
-    }).catch(err => {
-        console.error(err.message);
+        const pwd = crypto.scryptSync(result.pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
+        return User.updateOne({ _id: result._id }, { $set: { pwd } });
     })
-
-// User.create(users).then(res => {
-//       console.log(res);
-//   }).catch(err => {
-//       console.log(err);
-//   })
+    .then(result => {
+        if (result) console.log('password changed!');
+    })
+    .catch(err => {
+        // console.error(err.message);
+    })
 
 module.exports = User;
