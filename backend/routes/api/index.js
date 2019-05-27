@@ -12,6 +12,7 @@ const config = require('../../../config')
 
 // 토큰 검사하는 미들웨어는 토큰이 있을때만 들어와야되기 때문에 sign이 더 위에 있다.
 router.use('/sign', require('./sign'))
+router.use('/register', require('./register'))
 router.use('/site', require('./site'))
 console.log('**************')
 console.log('*****SIGN*****')
