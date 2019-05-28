@@ -6,7 +6,7 @@ const UserModel = require('./../../../../models/users');
 router.get('/', function (req, res, next) {
     UserModel.find()
         .then(users => {
-            res.send({ success: true, users: users });
+            res.send({ success: true, users: users, token: req.token });
         }).catch(err => {
             res.send({ success: false });
         });
@@ -30,7 +30,7 @@ router.put('/:id', (req, res, next) => { // 가변으로 id parameter를 받아�
 
     UserModel.updateOne({ _id: id }, { $set: req.body })
         .then(r => {
-            res.send({ success: true, msg: r });
+            res.send({ success: true, msg: r, token: req.token });
         }).catch(err => {
             res.send({ success: false, msg: err.message });
         });
@@ -41,7 +41,7 @@ router.delete('/:id', (req, res, next) => {
     
     UserModel.deleteOne({ _id: id })
         .then(r => {
-            res.send({ success: true, msg: r });
+            res.send({ success: true, msg: r, token: req.token });
         }).catch(err => {
             res.send({ success: false, msg: err.message });
         });

@@ -17,7 +17,7 @@ axios.defaults.baseURL = apiRootPath;
 // axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
 
 // Add a request interceptor
-axios.interceptors.request.use(function (config) {
+axios.interceptors.request.use((config) => {
 	// console.log(config)
 	// Do something before request is sent
 	config.headers.Authorization = localStorage.getItem('token');
@@ -28,12 +28,14 @@ axios.interceptors.request.use(function (config) {
 });
 
 // Add a response interceptor
-axios.interceptors.response.use(function (response) {
-	// console.log(response)
+axios.interceptors.response.use((response) => {
+	console.log(response.data)
 	// Do something with response data
-	if (response.data.token) {
-		localStorage.setItem('token', response.data.token);
-		// this.$store.commit('getToken');
+	const token = response.data.token;
+
+	if (token) {
+		localStorage.setItem('token', token);
+		this.$store.commit('getToken');
 	}
 	return response;
 }, function (error) {
@@ -44,7 +46,7 @@ axios.interceptors.response.use(function (response) {
 const pageCheck = (to, from, next) => {
 	axios.post(`${apiRootPath}page`, { name: to.name })
 		.then((result) => {
-			console.log('pageCheck => ', result)
+			// console.log('pageCheck => ', result)
 			if (!result.data.success) throw new Error(result.data.msg)
 			next()
 		})
