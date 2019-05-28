@@ -1,15 +1,54 @@
 <template>
     <v-app :dark="siteDark">
+        <!-- :mini-variant.sync="mini" -->
         <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher fixed app>
+            <v-toolbar flat class="transparent">
+                <v-list class="pa-0">
+                    <v-list-tile avatar>
+                        <v-list-tile-avatar>
+                            <img src="https://randomuser.me/api/portraits/men/85.jpg">
+                        </v-list-tile-avatar>
+
+                        <v-list-tile-content>
+                            <v-list-tile-title>Tony Kim</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list>
+            </v-toolbar>
+
             <v-list>
-                <v-list-tile value="true" v-for="(item, i) in items" :key="i" :to="item.to">
-                    <v-list-tile-action>
-                        <v-icon v-html="item.icon"></v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title v-text="item.title"></v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                <v-list-group
+                    v-for="item in items"
+                    :key="item.title"
+                    v-model="item.active"
+                    :prepend-icon="item.action"
+                    no-action
+                >
+                    <template v-slot:activator>
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon v-html="item.icon"></v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-content>
+                                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </template>
+
+                    <v-list-tile
+                        v-for="subItem in item.items"
+                        :key="subItem.title"
+                        :to="subItem.to"
+                    >
+                        <v-list-tile-content>
+                            <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                        </v-list-tile-content>
+
+                        <v-list-tile-action>
+                            <v-icon>{{ subItem.action }}</v-icon>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                </v-list-group>
             </v-list>
         </v-navigation-drawer>
         <v-toolbar app>
@@ -18,7 +57,7 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
                 <v-menu bottom left>
-                    <v-btn icon slot="activator">
+                    <v-btn icon slot="activator" @click="click">
                         <v-icon>more_vert</v-icon>
                     </v-btn>
                     <v-list>
@@ -58,52 +97,72 @@ export default {
             items: [
                 {
                     icon: 'home',
-                    title: '[lv0] 관리자 페이지',
-                    to: {
-                        path: '/'
-                    }
+                    title: '권한 테스트',
+                    items: [
+                        {
+                            icon: 'home',
+                            title: '[lv3] 손님 페이지',
+                            active: true,
+                            to: {
+                                path: '/level3'
+                            }
+                        },
+                        {
+                            icon: 'home',
+                            title: '[lv2] 일반유저 페이지',
+                            to: {
+                                path: '/level2'
+                            }
+                        },
+                        {
+                            icon: 'home',
+                            title: '[lv1] 슈퍼유저 페이지',
+                            to: {
+                                path: '/level1'
+                            }
+                        },
+                        {
+                            icon: 'home',
+                            title: '[lv0] 관리자 페이지',
+                            to: {
+                                path: '/'
+                            }
+                        }
+                    ]
                 },
                 {
-                    icon: 'home',
-                    title: '[lv1] 슈퍼유저 페이지',
-                    to: {
-                        path: '/level1'
-                    }
-                },
-                {
-                    icon: 'home',
-                    title: '[lv2] 일반유저 페이지',
-                    to: {
-                        path: '/level2'
-                    }
-                },
-                {
-                    icon: 'home',
-                    title: '[lv3] 손님 페이지',
-                    to: {
-                        path: '/level3'
-                    }
-                },
-                {
-                    icon: 'face',
-                    title: '사용자관리',
-                    to: {
-                        path: '/users'
-                    }
-                },
-                {
-                    icon: 'face',
-                    title: '페이지관리',
-                    to: {
-                        path: '/page'
-                    }
-                },
-                {
-                    icon: 'face',
-                    title: '사이트관리',
-                    to: {
-                        path: '/site'
-                    }
+                    icon: 'settings',
+                    title: '관리 메뉴',
+                    items: [
+                        {
+                            icon: 'face',
+                            title: '사용자관리',
+                            to: {
+                                path: '/manage/users'
+                            }
+                        },
+                        {
+                            icon: 'face',
+                            title: '페이지관리',
+                            to: {
+                                path: '/manage/page'
+                            }
+                        },
+                        {
+                            icon: 'settings',
+                            title: '게시판관리',
+                            to: {
+                                path: '/manage/boards'
+                            }
+                        },
+                        {
+                            icon: 'face',
+                            title: '사이트관리',
+                            to: {
+                                path: '/manage/site'
+                            }
+                        }
+                    ]
                 }
             ],
             title: this.$apiRootPath
@@ -125,6 +184,13 @@ export default {
             this.$store.commit('deleteToken');
             // localStorage.removeItem("token"); // 로그아웃 하면 토큰 날린다.
             this.$router.push('/');
+        },
+        click() {
+            console.log('click => ', this.$store.state.token);
+            // if (!this.$store.state.token) {
+            //     alert('로그인 시간이 만료되었습니다. 다시 로그인 해주세요.');
+            //     this.$router.push('/sign');
+            // }
         }
     }
 };

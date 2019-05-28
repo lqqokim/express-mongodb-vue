@@ -2,10 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import axios from 'axios'
 import Home from './views/Home.vue'
+import store from './store'
+
 // import e404 from './views/e404.vue'
 
 Vue.use(Router)
-
 
 Vue.prototype.$axios = axios;
 // Vue.prototype.$store = store;
@@ -35,7 +36,7 @@ axios.interceptors.response.use((response) => {
 
 	if (token) {
 		localStorage.setItem('token', token);
-		this.$store.commit('getToken');
+		store.commit('getToken');
 	}
 	return response;
 }, function (error) {
@@ -63,47 +64,53 @@ export default new Router({
 		{
 			path: '/',
 			name: 'level0',
-			component: () => import('./views/Level0'),
+			component: () => import('./views/test/Level0'),
 			beforeEnter: pageCheck
 		},
 		{
 			path: '/level1',
 			name: 'level1',
-			component: () => import('./views/Level1'),
+			component: () => import('./views/test/Level1'),
 			beforeEnter: pageCheck
 		},
 		{
 			path: '/level2',
 			name: 'level2',
-			component: () => import('./views/Level2'),
+			component: () => import('./views/test/Level2'),
 			beforeEnter: pageCheck
 		},
 		{
 			path: '/level3',
 			name: 'level3',
-			component: () => import('./views/Level3'),
+			component: () => import('./views/test/Level3'),
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/users',
+			path: '/manage/users',
 			name: 'user',
 			// route level code-splitting
 			// this generates a separate chunk (about.[hash].js) for this route
 			// which is lazy-loaded when the route is visited.
-			component: () => import(/* webpackChunkName: "about" */ './views/Users'),
+			component: () => import(/* webpackChunkName: "about" */ './views/manage/User'),
 			beforeEnter: pageCheck
 
 		},
 		{
-			path: '/page',
+			path: '/manage/page',
 			name: 'page',
-			component: () => import('./views/Page'),
+			component: () => import('./views/manage/Page'),
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/site',
+			path: '/manage/boards',
+			name: 'manageBoards',
+			component: () => import('./views/manage/Boards'),
+			beforeEnter: pageCheck
+		},
+		{
+			path: '/manage/site',
 			name: 'site',
-			component: () => import('./views/Site'),
+			component: () => import('./views/manage/Site'),
 			beforeEnter: pageCheck
 		},
 		// {

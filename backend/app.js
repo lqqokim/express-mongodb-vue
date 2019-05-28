@@ -112,6 +112,22 @@ mongoose.connect(config.dbUrl, { useNewUrlParser: true }, (err) => {
   //   })
 });
 
+// const User = require('./models/users')
+const Board = require('./models/boards')
+const Article = require('./models/articles')
+
+// User.findOne()
+//   .then(r => console.log(r.id, r._id)) // 5cebfa67c7e8eb170b6aaa0d
+
+// Board.findOne()
+//   .then(r => console.log(r.name, r._id)) // 5ced93a90fabf9aedae1047e
+
+// Article.create({ title: 'aaa', content: 'kkfjf', _user: '5cebfa67c7e8eb170b6aaa0d', _board: '5ced93a90fabf9aedae1047e' })
+// .then(r => console.log(r))
+
+Article.findOne()
+  .populate('_user').then(r => console.log(r));
+
 module.exports = app;
 
 // var jwt = require('jsonwebtoken');

@@ -11,6 +11,7 @@ router.all('*', (req, res, next) => {
 router.use('/user', require('./user'))
 router.use('/page', require('./page'))
 router.use('/site', require('./site'))
+router.use('/board', require('./board'))
 
 router.all('*', function(req, res, next) {
   next(createError(404, '그런 api 없어'));
