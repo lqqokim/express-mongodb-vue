@@ -4,7 +4,8 @@ var router = express.Router();
 const Board = require('../../../models/boards');
 const Article = require('../../../models/articles');
 
-router.get('/:_board', (req, res, next) => {
+// 게시판을 읽어온다
+router.get('/list/:_board', (req, res, next) => {
     const { _board } = req.params;
     const param = _board ? { _board } : {}; // 게시물이 지정 안되어 있을 경우 전체
 
@@ -43,6 +44,18 @@ router.get('/:_board', (req, res, next) => {
             res.send({ success: false, msg: e.message });
         });
 });
+
+router.get('/read/:_id', (req, res, next) => {
+    const _id = req.params._id
+  
+    Article.findById(_id).select('content')
+      .then(r => {
+        res.send({ success: true, d: r, token: req.token })
+      })
+      .catch(e => {
+        res.send({ success: false, msg: e.message })
+      })
+  })
 
 Article.deleteMany({}).then(r => console.log(r));
 

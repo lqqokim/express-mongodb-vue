@@ -36,8 +36,12 @@
                     <template v-slot:items="props">
                         <!-- <td>{{ props.item.name }}</td> -->
                         <td :class="headers[0].class">{{ id2date(props.item._id) }}</td>
-                        <td :class="headers[1].class">{{ props.item.title }}</td>
-                        <td :class="headers[2].class">{{ props.item._user ? props.item._user.id : '손님' }}</td>
+                        <td :class="headers[1].class">
+                            <a @click="read(props.item)">{{ props.item.title }}</a>
+                        </td>
+                        <td
+                            :class="headers[2].class"
+                        >{{ props.item._user ? props.item._user.id : '손님' }}</td>
                         <td :class="headers[3].class">{{ props.item.cnt.view }}</td>
                         <td :class="headers[4].class">{{ props.item.cnt.like }}</td>
                     </template>
@@ -82,6 +86,20 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="dlRead" persistent max-width="500px">
+            <v-card>
+                <v-card-title>
+                    <span class="headline">{{rd.title}}</span>
+                </v-card-title>
+                <v-card-text>{{rd.content}}</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="red darken-1" flat @click.native="dlRead = false">닫기</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         <v-snackbar v-model="sb.act">
             {{ sb.msg }}
             <v-btn :color="sb.color" flat @click="sb.act = false">닫기</v-btn>
@@ -110,6 +128,11 @@ export default {
                 act: false,
                 msg: '',
                 color: 'error'
+            },
+            dlRead: false,
+            rd: {
+                title: '',
+                content: ''
             },
             // table관련
             totalDesserts: 0,
@@ -162,7 +185,7 @@ export default {
                 content: ''
             };
         },
-        get() {
+        get() { // 게시판을 가져온다
             this.$axios
                 .get('board/아무나')
                 .then(({ data }) => {
@@ -174,7 +197,7 @@ export default {
                     this.pop(e.message, 'error');
                 });
         },
-        add() {
+        add() { // 게시글을 추가한다
             if (!this.form.title)
                 return this.pop('제목을 작성해주세요', 'warning');
             if (!this.form.content)
@@ -189,11 +212,11 @@ export default {
                     this.pop(e.message, 'error');
                 });
         },
-        list() {
+        list() { // 게시글 목록을 가져온다
             if (this.loading) return;
             this.loading = true;
             this.$axios
-                .get(`article/${this.board._id}`)
+                .get(`article/list/${this.board._id}`)
                 .then(({ data }) => {
                     this.articles = data.d;
                     console.log('articles => ', this.articles);
@@ -204,7 +227,22 @@ export default {
                     this.loading = false;
                 });
         },
-        id2date(val) {
+        read(article) { // 게시글의 내용만 가져온다
+            this.rd.title = article.title;
+            this.loading = true;
+            this.$axios
+                .get(`article/read/${article._id}`)
+                .then(({ data }) => {
+                    this.dlRead = true;
+                    this.rd.content = data.d.content;
+                    this.loading = false;
+                })
+                .catch(e => {
+                    this.pop(e.message, 'error');
+                    this.loading = false;
+                });
+        },
+        id2date(val) { // id값에서 날짜를 가져오기위함
             if (!val) return '잘못된 시간 정보';
             return new Date(
                 parseInt(val.substring(0, 8), 16) * 1000
