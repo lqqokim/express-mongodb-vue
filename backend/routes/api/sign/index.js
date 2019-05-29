@@ -9,7 +9,7 @@ const User = require('../../../models/users')
 
 // id, age, privateKey를 기반으로 token 생성
 // SHA-256 기본값으로 생성
-const createSignToken = (id, level, name, remember) => {
+const createSignToken = (_id, id, level, name, remember) => {
     return new Promise((resolve, reject) => {
         const jwtOptions = {
             issuer: config.jwt.issuer,
@@ -21,7 +21,7 @@ const createSignToken = (id, level, name, remember) => {
         if (remember) jwtOptions.expiresIn = config.jwt.expiresInRemember; // 7일
 
         // token 발급
-        jwt.sign({ id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
+        jwt.sign({ _id, id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
             if (err) reject(err);
             resolve(token);
         });
@@ -44,7 +44,7 @@ router.post('/in', (req, res) => {
             const cryptopwd = crypto.scryptSync(pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
 
             if (result.pwd !== cryptopwd) throw new Error('비밀번호가 틀립니다.');
-            const accessToken = await createSignToken(result.id, result.level, result.name, remember);
+            const accessToken = await createSignToken(result._id, result.id, result.level, result.name, remember);
             console.log('accessToken => ', accessToken);
             return accessToken;
         })

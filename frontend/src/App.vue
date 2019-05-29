@@ -18,8 +18,8 @@
 
             <v-list>
                 <v-list-group
-                    v-for="item in items"
-                    :key="item.title"
+                    v-for="(item, index) in items"
+                    :key="index"
                     v-model="item.active"
                     :prepend-icon="item.action"
                     no-action
@@ -36,8 +36,8 @@
                     </template>
 
                     <v-list-tile
-                        v-for="subItem in item.items"
-                        :key="subItem.title"
+                        v-for="(subItem, index) in item.items"
+                        :key="index"
                         :to="subItem.to"
                     >
                         <v-list-tile-content>
@@ -96,36 +96,55 @@ export default {
             siteDark: false,
             items: [
                 {
+                    icon: 'chat',
+                    title: '끄적끄적',
+                    active: true,
+                    items: [
+                        {
+                            icon: 'home',
+                            title: '아무나',
+                            to: {
+                                path: '/'
+                            }
+                        }
+                    ]
+                },
+                {
                     icon: 'home',
                     title: '권한 테스트',
                     items: [
                         {
                             icon: 'home',
                             title: '[lv3] 손님 페이지',
-                            active: true,
+                            // active: true,
+                            action: 'people_outline',
                             to: {
-                                path: '/level3'
+                                path: '/test/level3'
                             }
                         },
                         {
                             icon: 'home',
                             title: '[lv2] 일반유저 페이지',
+                            // active: true,
+                            action: 'people_outline',
                             to: {
-                                path: '/level2'
+                                path: '/test/level2'
                             }
                         },
                         {
                             icon: 'home',
                             title: '[lv1] 슈퍼유저 페이지',
+                            action: 'people_outline',
                             to: {
-                                path: '/level1'
+                                path: '/test/level1'
                             }
                         },
                         {
                             icon: 'home',
                             title: '[lv0] 관리자 페이지',
+                            action: 'people_outline',
                             to: {
-                                path: '/'
+                                path: '/test/level0'
                             }
                         }
                     ]
@@ -152,7 +171,7 @@ export default {
                             icon: 'settings',
                             title: '게시판관리',
                             to: {
-                                path: '/manage/boards'
+                                path: '/manage/board'
                             }
                         },
                         {

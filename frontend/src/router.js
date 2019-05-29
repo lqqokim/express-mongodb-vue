@@ -45,15 +45,15 @@ axios.interceptors.response.use((response) => {
 });
 
 const pageCheck = (to, from, next) => {
-	axios.post(`${apiRootPath}page`, { name: to.name })
+	axios.post('page', { name: to.path })
 		.then((result) => {
 			// console.log('pageCheck => ', result)
 			if (!result.data.success) throw new Error(result.data.msg)
 			next()
 		})
 		.catch((e) => {
-			console.error(e.message)
-			next(`/block/${e.message}`)
+			// next(`/block/${e.message}`)
+			next(`/block/${e.message.replace(/\//gi, ' ')}`)
 		})
 }
 
@@ -63,26 +63,32 @@ export default new Router({
 	routes: [
 		{
 			path: '/',
-			name: 'level0',
-			component: () => import('./views/test/Level0'),
+			name: 'boardAnyone',
+			component: () => import('./views/board/Anyone'),
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/level1',
-			name: 'level1',
-			component: () => import('./views/test/Level1'),
+			path: '/test/level3',
+			name: 'level3',
+			component: () => import('./views/test/Level3'),
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/level2',
+			path: '/test/level2',
 			name: 'level2',
 			component: () => import('./views/test/Level2'),
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/level3',
-			name: 'level3',
-			component: () => import('./views/test/Level3'),
+			path: '/test/level1',
+			name: 'level1',
+			component: () => import('./views/test/Level1'),
+			beforeEnter: pageCheck
+		},
+		{
+			path: '/test/level0',
+			name: 'level0',
+			component: () => import('./views/test/Level0'),
 			beforeEnter: pageCheck
 		},
 		{
@@ -102,7 +108,7 @@ export default new Router({
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/manage/boards',
+			path: '/manage/board',
 			name: 'manageBoards',
 			component: () => import('./views/manage/Boards'),
 			beforeEnter: pageCheck

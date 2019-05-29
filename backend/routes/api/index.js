@@ -26,17 +26,17 @@ const getToken = async (token) => {
     const diff = moment(vt.exp * 1000).diff(moment(), 'seconds');
     console.log('diff => ', diff);
     // 손님이면 token 발급없이 null을 return | 60초 보다 diff가 크면 토큰을 새로 내려줄 필요가 없기 때문에 null을 return
-    if (vt.level > 2 || diff > (vt.exp - vt.iat) / config.jwt.expiresInDiv) {
+    const expSec = (vt.exp - vt.iat);
+    if (vt.level > 2 || diff > expSec / config.jwt.expiresInDiv) {
         return { user: vt, token: null };
     }
     // 60초보다 작을 경우 token을 다시 생성한다.
-    const refreshToken = await createSignToken(vt.id, vt.level, vt.name, vt.remember);
+    const refreshToken = await createSignToken(vt._id, vt.id, vt.level, vt.name, expSec);
     console.log('refreshToken => ', refreshToken);
     vt = await verifyToken(refreshToken);
 
     return { user: vt, token: refreshToken };
 }
-
 
 // secretKey를 이용하여 token을 푼다 
 const verifyToken = (token) => {
@@ -54,16 +54,17 @@ const verifyToken = (token) => {
 }
 
 //config option 기반으로 token 생성
-const createSignToken = (id, level, name, remember) => {
+const createSignToken = (_id, id, level, name, exp) => {
     return new Promise((resolve, reject) => {
         const jwtOptions = {
             issuer: config.jwt.issuer,
             subject: config.jwt.subject,
             expiresIn: config.jwt.expiresIn, // 3분
-            algorithm: config.jwt.algorithm
+            algorithm: config.jwt.algorithm,
+            expiresIn: exp
         };
         // token 생성
-        jwt.sign({ id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
+        jwt.sign({ _id, id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
             if (err) reject(err);
             resolve(token);
         });
@@ -91,6 +92,8 @@ router.use('/page', require('./page'));
 console.log('**************')
 console.log('*****PAGE*****')
 console.log('**************')
+router.use('/board', require('./board'));
+router.use('/article', require('./article'));
 
 // 관리자가 관리용으로 사용하는 api
 router.use('/manage', require('./manage'));
