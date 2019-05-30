@@ -37,7 +37,7 @@
                         <!-- <td>{{ props.item.name }}</td> -->
                         <td :class="headers[0].class">{{ id2date(props.item._id) }}</td>
                         <td :class="headers[1].class">
-                            <a @click="read(props.item)">{{ props.item.title }}</a>
+                            <a @click="readArticle(props.item)">{{ props.item.title }}</a>
                         </td>
                         <td
                             :class="headers[2].class"
@@ -49,13 +49,35 @@
             </v-flex>
         </v-layout>
 
-        <v-btn color="pink" dark small absolute bottom right fab @click="addDialog">
+        <v-btn color="pink" dark small absolute bottom right fab @click="addDialog()">
             <v-icon>add</v-icon>
         </v-btn>
-        <v-dialog v-model="dialog" persistent max-width="500px">
-            <v-card>
+
+        <v-dialog v-model="isOpen" persistent max-width="500px">
+            <v-card v-if="!dialogStatus">
                 <v-card-title>
-                    <span class="headline">글 작성</span>
+                    <span class="headline">{{selectedArticle.title}}</span>
+                </v-card-title>
+                <v-card-text>{{selectedArticle.content}}</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="warning darken-1" flat @click.native="modDialog()">수정</v-btn>
+                    <v-btn color="error darken-1" flat @click.native="ca=true">삭제</v-btn>
+                    <v-btn color="secondary darken-1" flat @click.native="isOpen = false">닫기</v-btn>
+                </v-card-actions>
+                <v-card-text>
+                    <v-card-text v-if="ca">
+                        <v-alert v-model="ca" type="warning">
+                            <h4>정말 진행 하시겠습니까?</h4>
+                            <v-btn color="error" @click="deleteArticle()">확인</v-btn>
+                            <v-btn color="secondary" @click="ca=false">취소</v-btn>
+                        </v-alert>
+                    </v-card-text>
+                </v-card-text>
+            </v-card>
+            <v-card v-else>
+                <v-card-title>
+                    <span class="headline">글 {{(dialogStatus === 1) ? '작성' : '수정'}}</span>
                 </v-card-title>
                 <v-card-text>
                     <v-container grid-list-md>
@@ -81,28 +103,19 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" flat @click="add()">확인</v-btn>
-                    <v-btn color="red darken-1" flat @click.native="dialog = false">취소</v-btn>
+                    <v-btn
+                        color="green darken-1"
+                        flat
+                        @click="(dialogStatus === 1) ? addArticle() : modifyArticle()"
+                    >확인</v-btn>
+                    <v-btn color="red darken-1" flat @click.native="isOpen = false">취소</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
 
-        <v-dialog v-model="dlRead" persistent max-width="500px">
-            <v-card>
-                <v-card-title>
-                    <span class="headline">{{rd.title}}</span>
-                </v-card-title>
-                <v-card-text>{{rd.content}}</v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="red darken-1" flat @click.native="dlRead = false">닫기</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-snackbar v-model="sb.act">
-            {{ sb.msg }}
-            <v-btn :color="sb.color" flat @click="sb.act = false">닫기</v-btn>
+        <v-snackbar v-model="snackbar.act">
+            {{ snackbar.msg }}
+            <v-btn :color="snackbar.color" flat @click="snackbar.act = false">닫기</v-btn>
         </v-snackbar>
     </v-container>
 </template>
@@ -118,13 +131,13 @@ export default {
                 rmk: '무엇?'
             },
             articles: [],
-            dialog: false,
-            lvs: [0, 1, 2, 3],
+            isOpen: false,
+            levels: [0, 1, 2, 3],
             form: {
                 title: '',
                 content: ''
             },
-            sb: {
+            snackbar: {
                 act: false,
                 msg: '',
                 color: 'error'
@@ -171,33 +184,46 @@ export default {
                     // align: 'left',
                     sortable: true
                 }
-            ]
+            ],
+            dialogStatus: 0, // 0: read, 1: write, 2: modify
+            selectedArticle: {},
+            ca: false
         };
     },
     mounted() {
-        this.get();
+        this.getBoard();
     },
     methods: {
         addDialog() {
-            this.dialog = true;
+            this.isOpen = true;
+            this.dialogStatus = 1;
             this.form = {
                 title: '',
                 content: ''
             };
         },
-        get() { // 게시판을 가져온다
+        modDialog() {
+            this.dialogStatus = 2;
+            this.form = {
+                title: this.selectedArticle.title,
+                content: this.selectedArticle.content
+            };
+        },
+        getBoard() {
+            // 게시판을 가져온다
             this.$axios
                 .get('board/아무나')
                 .then(({ data }) => {
                     if (!data.success) throw new Error(data.msg);
                     this.board = data.d;
-                    this.list();
+                    this.getArticles();
                 })
                 .catch(e => {
                     this.pop(e.message, 'error');
                 });
         },
-        add() { // 게시글을 추가한다
+        addArticle() {
+            // 게시글을 추가한다
             if (!this.form.title)
                 return this.pop('제목을 작성해주세요', 'warning');
             if (!this.form.content)
@@ -205,14 +231,15 @@ export default {
             this.$axios
                 .post(`article/${this.board._id}`, this.form)
                 .then(r => {
-                    this.dialog = false;
-                    this.list();
+                    this.isOpen = false;
+                    this.getArticles();
                 })
                 .catch(e => {
                     this.pop(e.message, 'error');
                 });
         },
-        list() { // 게시글 목록을 가져온다
+        getArticles() {
+            // 게시글 목록을 가져온다
             if (this.loading) return;
             this.loading = true;
             this.$axios
@@ -227,14 +254,18 @@ export default {
                     this.loading = false;
                 });
         },
-        read(article) { // 게시글의 내용만 가져온다
-            this.rd.title = article.title;
+        readArticle(article) {
+            this.selectedArticle = article;
             this.loading = true;
             this.$axios
                 .get(`article/read/${article._id}`)
                 .then(({ data }) => {
-                    this.dlRead = true;
-                    this.rd.content = data.d.content;
+                    if (!data.success) throw new Error(data.msg);
+                    console.log(data);
+                    this.dialogStatus = 0;
+                    this.isOpen = true;
+                    this.selectedArticle.content = data.d.content;
+                    this.selectedArticle.cnt.view = data.d.cnt.view;
                     this.loading = false;
                 })
                 .catch(e => {
@@ -242,16 +273,52 @@ export default {
                     this.loading = false;
                 });
         },
-        id2date(val) { // id값에서 날짜를 가져오기위함
+        modifyArticle() {
+            if (!this.form.title)
+                return this.pop('제목을 작성해주세요', 'warning');
+            if (!this.form.content)
+                return this.pop('내용을 작성해주세요', 'warning');
+            if (
+                this.selectedArticle.title === this.form.title &&
+                this.selectedArticle.content === this.form.content
+            )
+                return this.pop('변경된 내용이 없습니다', 'warning');
+            this.$axios
+                .put(`article/${this.selectedArticle._id}`, this.form)
+                .then(({ data }) => {
+                    this.isOpen = false;
+                    if (!data.success) throw new Error(data.msg);
+                    this.selectedArticle.title = data.d.title;
+                    this.selectedArticle.content = data.d.content;
+                    // this.list()
+                })
+                .catch(e => {
+                    this.pop(e.message, 'error');
+                });
+        },
+        deleteArticle() {
+            this.$axios
+                .delete(`article/${this.selectedArticle._id}`)
+                .then(({ data }) => {
+                    this.isOpen = false;
+                    if (!data.success) throw new Error(data.msg);
+                    this.getArticles();
+                })
+                .catch(e => {
+                    this.pop(e.message, 'error');
+                });
+        },
+        id2date(val) {
+            // id값에서 날짜를 가져오기위함
             if (!val) return '잘못된 시간 정보';
             return new Date(
                 parseInt(val.substring(0, 8), 16) * 1000
             ).toLocaleString();
         },
-        pop(m, c) {
-            this.sb.act = true;
-            this.sb.msg = m;
-            this.sb.color = c;
+        pop(msg, color) {
+            this.snackbar.act = true;
+            this.snackbar.msg = msg;
+            this.snackbar.color = color;
         }
     }
 };

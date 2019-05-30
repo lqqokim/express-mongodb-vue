@@ -3,6 +3,9 @@ var createError = require('http-errors');
 var router = express.Router();
 const Board = require('../../../models/boards');
 const Article = require('../../../models/articles');
+const mongoose = require('mongoose')
+
+mongoose.set('useFindAndModify', false);
 
 // 게시판을 읽어온다
 router.get('/list/:_board', (req, res, next) => {
@@ -18,7 +21,7 @@ router.get('/list/:_board', (req, res, next) => {
     //     "content":"aa",
     //     "ip":"::1",
     //     "comments":[  
-     
+
     //     ],
     //     "_id":"5cee8ddcf666ef35a8818f29",
     //     "_board":"5cedc962a8ce44ebe299218e",
@@ -34,7 +37,7 @@ router.get('/list/:_board', (req, res, next) => {
     //     },
     //     "__v":0
     //  }
-     
+
     Article.find(param)
         .populate('_user', '-pwd') // 작성자에 대한 글이 몇개인지 등에 대한 추가적인 정보를 가져올 수 있다.
         .then(result => {
@@ -47,17 +50,19 @@ router.get('/list/:_board', (req, res, next) => {
 
 router.get('/read/:_id', (req, res, next) => {
     const _id = req.params._id
-  
-    Article.findById(_id).select('content')
-      .then(r => {
-        res.send({ success: true, d: r, token: req.token })
-      })
-      .catch(e => {
-        res.send({ success: false, msg: e.message })
-      })
-  })
 
-Article.deleteMany({}).then(r => console.log(r));
+    Article.findByIdAndUpdate(_id, { $inc: { 'cnt.view': 1 } }, { new: true })
+        .select('content cnt.view')
+        .then(r => {
+            console.log(r)
+            res.send({ success: true, d: r, token: req.token })
+        })
+        .catch(e => {
+            res.send({ success: false, msg: e.message })
+        })
+})
+
+// Article.deleteMany({}).then(r => console.log(r));
 
 // 게시판에 쓸 자격이 있는지 판단 후에 자격이 있다면 게시물을 작성한다.
 router.post('/:_board', (req, res, next) => {
@@ -73,7 +78,7 @@ router.post('/:_board', (req, res, next) => {
                 title: title,
                 content,
                 _board,
-                ip: req.ip,
+                ip: '1.1.1.1',//req.ip,
                 _user: req.user._id ? req.user._id : null // _id가 없으면 손님이므로 null
             };
 
@@ -88,13 +93,14 @@ router.post('/:_board', (req, res, next) => {
 });
 
 router.put('/:_id', (req, res, next) => {
-    if (!req.user._id) return res.send({ success: false, msg: '손님은 수정이 안됩니다.' });
+    if (!req.user._id) return res.send({ success: false, msg: '게시물 수정 권한이 없습니다.' });
     const { _id } = req.params;
-
+    console.log(req.user, _id)
     Article.findById(_id)
         .then(result => {
-            if (!result) throw new Error('게시물 없음');
-            if (result._user.toString() !== req.user._id) throw new Error('본인 작성 게시물만 삭제됩니다.');
+            console.log('Article=> ', result);
+            if (!result) throw new Error('게시물이 존재하지 않습니다.');
+            if (result._user._id.toString() !== req.user._id) throw new Error('본인이 작성한 게시물이 아닙니다.');
             // find -> update -> new: true로 갱신된 것을 반환
             return Article.findOneAndUpdate({ _id }, { $set: req.body }, { new: true }); // find한 결과에서 갱싱된 것을 return하기 위한 옵션
         })
@@ -107,16 +113,16 @@ router.put('/:_id', (req, res, next) => {
 });
 
 router.delete('/:_id', (req, res, next) => {
-    if (!req.user._id) return res.send({ success: false, msg: '손님은 삭제가 안됩니다.' });
+    if (!req.user._id) return res.send({ success: false, msg: '게시물 수정 권한이 없습니다.' });
     const { _id } = req.params;
 
     Article.findById(_id).populate('_user', 'level')
         .then(result => {
-            if (!result) throw new Error('게시물 없음');
+            if (!result) throw new Error('게시물이 존재하지 않습니다.');
             if (result._user) {
                 if (result._user_id.toString() !== req.user._id) {
                     if (result._user.level < req.user.level) {
-                        throw new Error('권한이 없습니다.');
+                        throw new Error('본인이 작성한 게시물이 아닙니다.');
                     }
                 }
             }
@@ -124,7 +130,7 @@ router.delete('/:_id', (req, res, next) => {
             return Article.deleteOne({ _id });
         })
         .then(result => {
-            res.send({ success: true, token: req.token });
+            res.send({ success: true, d: result, token: req.token });
         })
         .catch(e => {
             res.send({ success: false, msg: e.message });

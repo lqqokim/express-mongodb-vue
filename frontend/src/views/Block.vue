@@ -10,6 +10,7 @@ export default {
   mounted () {
     // console.log(this.$route.params.msg)
     // if (this.$route.params.msg === 'jwt expired') this.$store.commit('deleteToken')
+    if (this.$route.params.msg === 'jwt expired') this.$store.commit('deleteToken');
   }
 }
 </script>

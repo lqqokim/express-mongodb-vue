@@ -21,7 +21,7 @@ const createSignToken = (_id, id, level, name, remember) => {
         if (remember) jwtOptions.expiresIn = config.jwt.expiresInRemember; // 7일
 
         // token 발급
-        jwt.sign({ _id, id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
+        jwt.sign({ _id, id, level, name }, config.jwt.secretKey, jwtOptions, (err, token) => {
             if (err) reject(err);
             resolve(token);
         });
@@ -30,7 +30,7 @@ const createSignToken = (_id, id, level, name, remember) => {
 
 // 로그인 시
 router.post('/in', (req, res) => {
-    const { id, pwd, remember } = req.body
+    const { id, pwd, remember } = req.body;
     if (!id) return res.send({ success: false, msg: '아이디가 없습니다.' });
     if (!pwd) return res.send({ success: false, msg: '비밀번호가 없습니다.' });
     if (remember == undefined) return res.send({ success: false, msg: '기억하기가 없숩니다.' });

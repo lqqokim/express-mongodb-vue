@@ -64,7 +64,7 @@ const createSignToken = (_id, id, level, name, exp) => {
             expiresIn: exp
         };
         // token 생성
-        jwt.sign({ _id, id, level, name, remember }, config.jwt.secretKey, jwtOptions, (err, token) => {
+        jwt.sign({ _id, id, level, name, exp }, config.jwt.secretKey, jwtOptions, (err, token) => {
             if (err) reject(err);
             resolve(token);
         });
