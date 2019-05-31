@@ -11,33 +11,37 @@
                         <v-container fill-height fluid>
                             <v-layout fill-height>
                                 <v-flex xs6 align-end flexbox>
-                                    <span class="headline">{{board.name}}</span>
+                                    <span class="headline">개발 이야기</span>
                                 </v-flex>
-                                <v-flex xs6 align-end flexbox>
+                                <!-- <v-flex xs6 align-end flexbox class="text-xs-right">
                                     <span>{{board.rmk}}</span>
-                                </v-flex>
+                                </v-flex> -->
                             </v-layout>
                         </v-container>
                     </v-img>
                 </v-card>
             </v-flex>
-            <!-- <v-flex xs12 sm6 md4 v-for="article in articles" :key="article._id">{{article}}</v-flex> -->
+            <!-- <v-flex xs12 sm6 md4 v-for="article in articles" :key="article._id">
+        {{article}}
+            </v-flex>-->
+            <v-flex xs12 sm4 offset-sm8>
+                <v-text-field label="검색" append-icon="search" v-model="params.search" clearable></v-text-field>
+            </v-flex>
             <v-flex xs12>
                 <v-data-table
                     :headers="headers"
                     :items="articles"
-                    :total-items="totalDesserts"
+                    :total-items="pagination.totalItems"
                     :pagination.sync="pagination"
-                    :loading="loading"
                     rows-per-page-text
+                    :loading="loading"
+                    class="text-no-wrap"
                     disable-initial-sort
-                    class="elevation-1"
                 >
-                    <template v-slot:items="props">
-                        <!-- <td>{{ props.item.name }}</td> -->
-                        <td :class="headers[0].class">{{ id2date(props.item._id) }}</td>
+                    <template slot="items" slot-scope="props">
+                        <td :class="headers[0].class">{{ id2date(props.item._id)}}</td>
                         <td :class="headers[1].class">
-                            <a @click="readArticle(props.item)">{{ props.item.title }}</a>
+                            <a @click="getArticle(props.item)">{{ props.item.title }}</a>
                         </td>
                         <td
                             :class="headers[2].class"
@@ -46,15 +50,17 @@
                         <td :class="headers[4].class">{{ props.item.cnt.like }}</td>
                     </template>
                 </v-data-table>
+                <div class="text-xs-center pt-2">
+                    <v-pagination v-model="pagination.page" :length="pages"></v-pagination>
+                </div>
             </v-flex>
         </v-layout>
 
-        <v-btn color="pink" dark small absolute bottom right fab @click="addDialog()">
+        <v-btn color="pink" dark small absolute bottom right fab @click="addDialog">
             <v-icon>add</v-icon>
         </v-btn>
-
-        <v-dialog v-model="isOpen" persistent max-width="500px">
-            <v-card v-if="!dialogStatus">
+        <v-dialog v-model="dialog" persistent max-width="500px">
+            <v-card v-if="!dlMode">
                 <v-card-title>
                     <span class="headline">{{selectedArticle.title}}</span>
                 </v-card-title>
@@ -63,7 +69,7 @@
                     <v-spacer></v-spacer>
                     <v-btn color="warning darken-1" flat @click.native="modDialog()">수정</v-btn>
                     <v-btn color="error darken-1" flat @click.native="ca=true">삭제</v-btn>
-                    <v-btn color="secondary darken-1" flat @click.native="isOpen = false">닫기</v-btn>
+                    <v-btn color="secondary darken-1" flat @click.native="dialog = false">닫기</v-btn>
                 </v-card-actions>
                 <v-card-text>
                     <v-card-text v-if="ca">
@@ -77,7 +83,7 @@
             </v-card>
             <v-card v-else>
                 <v-card-title>
-                    <span class="headline">글 {{(dialogStatus === 1) ? '작성' : '수정'}}</span>
+                    <span class="headline">글 {{(dlMode === 1) ? '작성' : '수정'}}</span>
                 </v-card-title>
                 <v-card-text>
                     <v-container grid-list-md>
@@ -103,27 +109,22 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn
-                        color="green darken-1"
-                        flat
-                        @click="(dialogStatus === 1) ? addArticle() : modifyArticle()"
-                    >확인</v-btn>
-                    <v-btn color="red darken-1" flat @click.native="isOpen = false">취소</v-btn>
+                    <v-btn color="green darken-1" flat @click="(dlMode === 1) ? addArticle() : updateArticle()">확인</v-btn>
+                    <v-btn color="red darken-1" flat @click.native="dialog = false">취소</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
-        <v-snackbar v-model="snackbar.act">
-            {{ snackbar.msg }}
-            <v-btn :color="snackbar.color" flat @click="snackbar.act = false">닫기</v-btn>
+        <v-snackbar v-model="sb.act">
+            {{ sb.msg }}
+            <v-btn :color="sb.color" flat @click="sb.act = false">닫기</v-btn>
         </v-snackbar>
     </v-container>
 </template>
 <script>
-import BoardCard from '@/components/manage/BoardCard';
+import boardCard from '@/components/manage/BoardCard';
 
 export default {
-    components: { BoardCard },
+    components: { boardCard },
     data() {
         return {
             board: {
@@ -131,90 +132,111 @@ export default {
                 rmk: '무엇?'
             },
             articles: [],
-            isOpen: false,
-            levels: [0, 1, 2, 3],
+            dialog: false,
+            lvs: [0, 1, 2, 3],
             form: {
                 title: '',
                 content: ''
             },
-            snackbar: {
+            sb: {
                 act: false,
                 msg: '',
                 color: 'error'
             },
-            dlRead: false,
-            rd: {
-                title: '',
-                content: ''
-            },
-            // table관련
-            totalDesserts: 0,
-            desserts: [],
-            loading: false,
-            pagination: {},
             headers: [
                 {
                     text: '날짜',
                     value: '_id',
-                    // align: 'left',
                     sortable: true,
                     class: 'hidden-sm-and-down'
                 },
-                {
-                    text: '제목',
-                    value: 'title',
-                    // align: 'left',
-                    sortable: true
-                },
-                {
-                    text: '글쓴이',
-                    value: '_user',
-                    // align: 'left',
-                    sortable: false
-                },
-                {
-                    text: '조회수',
-                    value: 'cnt.view',
-                    // align: 'left',
-                    sortable: true
-                },
-                {
-                    text: '추천',
-                    value: 'cnt.like',
-                    // align: 'left',
-                    sortable: true
-                }
+                { text: '제목', value: 'title', sortable: true, align: 'left' },
+                { text: '글쓴이', value: '_user', sortable: false },
+                { text: '조회수', value: 'cnt.view', sortable: true },
+                { text: '추천', value: 'cnt.like', sortable: true }
             ],
-            dialogStatus: 0, // 0: read, 1: write, 2: modify
+            loading: false,
+            itemTotal: 0,
+            pagination: {},
+            getTotalPage: 1,
+            dlMode: 0, // 0: read, 1: write, 2: modify
             selectedArticle: {},
-            ca: false
+            ca: false,
+            params: {
+                draw: 0,
+                search: '',
+                skip: 0,
+                sort: '_id',
+                order: 0,
+                limit: 1
+            },
+            timeout: null
         };
     },
     mounted() {
         this.getBoard();
     },
+    watch: {
+        pagination: {
+            handler(a) {
+                console.log('pagination', this.pagination, a);
+                this.getArticles();
+            },
+            deep: true
+        },
+        'params.search': {
+            handler() {
+                console.log('params.search', this.pagination);
+                this.delay();
+            }
+        }
+    },
+    computed: {
+        setSkip() {
+            if (this.pagination.page <= 0) return 0;
+            return (this.pagination.page - 1) * this.pagination.rowsPerPage;
+        },
+        setSort() {
+            let order = this.pagination.sortBy;
+            if (!this.pagination.sortBy) order = '_id';
+            return order;
+        },
+        setOrder() {
+            return this.pagination.descending ? -1 : 1;
+        },
+        pages() {
+            if (
+                this.pagination.rowsPerPage == null ||
+                this.pagination.totalItems == null
+            )
+                return 0;
+            return Math.ceil(
+                this.pagination.totalItems / this.pagination.rowsPerPage
+            );
+        }
+    },
     methods: {
         addDialog() {
-            this.isOpen = true;
-            this.dialogStatus = 1;
+            this.dialog = true;
+            this.dlMode = 1;
             this.form = {
                 title: '',
                 content: ''
             };
         },
         modDialog() {
-            this.dialogStatus = 2;
+            this.dlMode = 2;
             this.form = {
                 title: this.selectedArticle.title,
                 content: this.selectedArticle.content
             };
         },
         getBoard() {
-            // 게시판을 가져온다
             this.$axios
-                .get('board/아무나')
+                .get('board/개발')
                 .then(({ data }) => {
                     if (!data.success) throw new Error(data.msg);
+                    console.log('getBoard => ', data);
                     this.board = data.d;
                     this.getArticles();
                 })
@@ -223,15 +245,15 @@ export default {
                 });
         },
         addArticle() {
-            // 게시글을 추가한다
             if (!this.form.title)
                 return this.pop('제목을 작성해주세요', 'warning');
             if (!this.form.content)
                 return this.pop('내용을 작성해주세요', 'warning');
             this.$axios
                 .post(`article/${this.board._id}`, this.form)
-                .then(r => {
-                    this.isOpen = false;
+                .then(({ data }) => {
+                    if (!data.success) throw new Error(data.msg);
+                    this.dialog = false;
                     this.getArticles();
                 })
                 .catch(e => {
@@ -239,14 +261,33 @@ export default {
                 });
         },
         getArticles() {
-            // 게시글 목록을 가져온다
+            console.log('list');
             if (this.loading) return;
+            if (!this.board._id) return;
             this.loading = true;
+            // const params = {
+            //   draw: (this.params.draw += 1),
+            //   // search: this.search,
+            //   skip: this.setSkip,
+            //   limit: this.pagination.rowsPerPage,
+            //   order: this.setOrder,
+            //   sort: this.setSort
+            // }
+            this.params.draw++;
+            this.params.skip = this.setSkip;
+            this.params.limit = this.pagination.rowsPerPage;
+            this.params.sort = this.setSort;
+            this.params.order = this.setOrder;
+
+            console.log('board => ', this.board)
+
             this.$axios
-                .get(`article/list/${this.board._id}`)
+                .get(`article/list/${this.board._id}`, { params: this.params })
                 .then(({ data }) => {
-                    this.articles = data.d;
-                    console.log('articles => ', this.articles);
+                    console.log('data => ', data);
+                    if (!data.success) throw new Error(data.msg);
+                    this.pagination.totalItems = data.t;
+                    this.articles = data.ds;
                     this.loading = false;
                 })
                 .catch(e => {
@@ -254,16 +295,15 @@ export default {
                     this.loading = false;
                 });
         },
-        readArticle(article) {
-            this.selectedArticle = article;
+        getArticle(atc) {
+            this.selectedArticle = atc;
             this.loading = true;
             this.$axios
-                .get(`article/read/${article._id}`)
+                .get(`article/read/${atc._id}`)
                 .then(({ data }) => {
                     if (!data.success) throw new Error(data.msg);
-                    console.log(data);
-                    this.dialogStatus = 0;
-                    this.isOpen = true;
+                    this.dlMode = 0;
+                    this.dialog = true;
                     this.selectedArticle.content = data.d.content;
                     this.selectedArticle.cnt.view = data.d.cnt.view;
                     this.loading = false;
@@ -273,7 +313,7 @@ export default {
                     this.loading = false;
                 });
         },
-        modifyArticle() {
+        updateArticle() {
             if (!this.form.title)
                 return this.pop('제목을 작성해주세요', 'warning');
             if (!this.form.content)
@@ -286,11 +326,10 @@ export default {
             this.$axios
                 .put(`article/${this.selectedArticle._id}`, this.form)
                 .then(({ data }) => {
-                    this.isOpen = false;
+                    this.dialog = false;
                     if (!data.success) throw new Error(data.msg);
                     this.selectedArticle.title = data.d.title;
                     this.selectedArticle.content = data.d.content;
-                    // this.list()
                 })
                 .catch(e => {
                     this.pop(e.message, 'error');
@@ -300,7 +339,7 @@ export default {
             this.$axios
                 .delete(`article/${this.selectedArticle._id}`)
                 .then(({ data }) => {
-                    this.isOpen = false;
+                    this.dialog = false;
                     if (!data.success) throw new Error(data.msg);
                     this.getArticles();
                 })
@@ -308,17 +347,23 @@ export default {
                     this.pop(e.message, 'error');
                 });
         },
+        pop(m, c) {
+            this.sb.act = true;
+            this.sb.msg = m;
+            this.sb.color = c;
+        },
         id2date(val) {
-            // id값에서 날짜를 가져오기위함
             if (!val) return '잘못된 시간 정보';
             return new Date(
                 parseInt(val.substring(0, 8), 16) * 1000
             ).toLocaleString();
         },
-        pop(msg, color) {
-            this.snackbar.act = true;
-            this.snackbar.msg = msg;
-            this.snackbar.color = color;
+        delay() {
+            console.log('delay', this.pagination)
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(() => {
+                this.getArticles();
+            }, 1000);
         }
     }
 };
