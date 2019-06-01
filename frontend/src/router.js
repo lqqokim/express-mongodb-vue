@@ -30,7 +30,7 @@ axios.interceptors.request.use((config) => {
 
 // Add a response interceptor
 axios.interceptors.response.use((response) => {
-	console.log(response.data)
+	// console.log(response.data)
 	// Do something with response data
 	const token = response.data.token;
 

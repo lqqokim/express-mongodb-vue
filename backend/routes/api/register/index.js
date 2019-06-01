@@ -21,6 +21,8 @@ router.post('/', (req, res) => {
         .then(result => {
             //버퍼로 저장되기 때문에 마지막에 toString 처리
             const cryptopwd = crypto.scryptSync(result.pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
+            
+            console.log('회원가입', cryptopwd)
             return User.updateOne({ _id: result._id }, { $set: { cryptopwd } });
         })
         .then(result => {
