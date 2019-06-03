@@ -11,11 +11,11 @@
                         <v-container fill-height fluid>
                             <v-layout fill-height>
                                 <v-flex xs6 align-end flexbox>
-                                    <span class="headline">개발 이야기</span>
+                                    <span class="headline">{{$route.params.name}} 게시판</span>
                                 </v-flex>
                                 <!-- <v-flex xs6 align-end flexbox class="text-xs-right">
                                     <span>{{board.rmk}}</span>
-                                </v-flex> -->
+                                </v-flex>-->
                             </v-layout>
                         </v-container>
                     </v-img>
@@ -109,7 +109,11 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" flat @click="(dlMode === 1) ? addArticle() : updateArticle()">확인</v-btn>
+                    <v-btn
+                        color="green darken-1"
+                        flat
+                        @click="(dlMode === 1) ? addArticle() : updateArticle()"
+                    >확인</v-btn>
                     <v-btn color="red darken-1" flat @click.native="dialog = false">취소</v-btn>
                 </v-card-actions>
             </v-card>
@@ -179,7 +183,7 @@ export default {
     watch: {
         pagination: {
             handler(a) {
-                console.log('pagination', this.pagination, a);
+                console.log('pagination', this.pagination);
                 this.getArticles();
             },
             deep: true
@@ -189,6 +193,14 @@ export default {
                 console.log('params.search', this.pagination);
                 this.delay();
             }
+        },
+        $route(to, from) { // 동일 컴포넌트 랜더링시에 $route 변경 감지
+            // 경로 변경에 반응하여...
+            this.getBoard();
+        },
+        beforeRouteUpdate(to, from, next) {
+            // react to route changes...
+            // don't forget to call next()
         }
     },
     computed: {
@@ -233,10 +245,10 @@ export default {
         },
         getBoard() {
             this.$axios
-                .get('board/개발')
+                .get(`board/read/${this.$route.params.name}`)
                 .then(({ data }) => {
                     if (!data.success) throw new Error(data.msg);
-                    console.log('getBoard => ', data);
+                    console.log('1. getBoard => ', data);
                     this.board = data.d;
                     this.getArticles();
                 })
@@ -261,30 +273,24 @@ export default {
                 });
         },
         getArticles() {
-            console.log('list');
             if (this.loading) return;
             if (!this.board._id) return;
             this.loading = true;
-            // const params = {
-            //   draw: (this.params.draw += 1),
-            //   // search: this.search,
-            //   skip: this.setSkip,
-            //   limit: this.pagination.rowsPerPage,
-            //   order: this.setOrder,
-            //   sort: this.setSort
-            // }
-            this.params.draw++;
-            this.params.skip = this.setSkip;
-            this.params.limit = this.pagination.rowsPerPage;
-            this.params.sort = this.setSort;
-            this.params.order = this.setOrder;
 
-            console.log('board => ', this.board)
+            const params = {
+                skip: this.setSkip,
+                limit: this.pagination.rowsPerPage,
+                sort: this.setSort,
+                order: this.setOrder
+                // draw: thia.params.draw++
+            };
+
+            console.log('2. getArticles => ', params);
 
             this.$axios
-                .get(`article/list/${this.board._id}`, { params: this.params })
+                .get(`article/list/${this.board._id}`, { params })
                 .then(({ data }) => {
-                    console.log('data => ', data);
+                    console.log('3. data => ', data);
                     if (!data.success) throw new Error(data.msg);
                     this.pagination.totalItems = data.t;
                     this.articles = data.ds;
@@ -359,8 +365,7 @@ export default {
             ).toLocaleString();
         },
         delay() {
-            console.log('delay', this.pagination)
-            clearTimeout(this.timeout);
+            this.timeout && clearTimeout(this.timeout);
             this.timeout = setTimeout(() => {
                 this.getArticles();
             }, 1000);

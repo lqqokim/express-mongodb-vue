@@ -15,6 +15,7 @@ const config = require('../../../config');
 router.use('/sign', require('./sign'))
 router.use('/register', require('./register'))
 router.use('/site', require('./site'))
+router.use('/board', require('./board'));
 console.log('**************')
 console.log('*****SIGN*****')
 console.log('**************')
@@ -97,7 +98,7 @@ router.use('/page', require('./page'));
 console.log('**************')
 console.log('*****PAGE*****')
 console.log('**************')
-router.use('/board', require('./board'));
+
 router.use('/article', require('./article'));
 
 // 관리자가 관리용으로 사용하는 api

@@ -96,17 +96,37 @@ export default {
             siteDark: false,
             items: [
                 {
-                    icon: 'chat',
-                    title: '끄적끄적',
-                    active: true,
+                    icon: 'donut_large',
+                    title: '현황',
+                    act: true,
                     items: [
                         {
-                            icon: 'home',
-                            title: '아무나',
+                            title: '오늘',
                             to: {
                                 path: '/'
                             }
                         }
+                    ]
+                },
+                {
+                    icon: 'chat',
+                    title: '끄적끄적',
+                    active: true,
+                    items: [
+                        // {
+                        //     icon: 'home',
+                        //     title: '아무나',
+                        //     to: {
+                        //         path: '/board/아무나'
+                        //     }
+                        // },
+                        // {
+                        //     icon: 'home',
+                        //     title: '지호',
+                        //     to: {
+                        //         path: '/board/지호'
+                        //     }
+                        // }
                     ]
                 },
                 {
@@ -189,6 +209,7 @@ export default {
     },
     mounted() {
         this.getSite();
+        this.getBoards();
     },
     methods: {
         getSite() {
@@ -198,6 +219,21 @@ export default {
                 this.siteCopyright = data.copyright;
                 this.siteDark = data.dark;
             });
+        },
+        getBoards() {
+            this.$axios
+                .get('/board/list')
+                .then(({ data }) => {
+                    data.data.forEach(board => {
+                        this.items[1].items.push({
+                            title: board.name,
+                            to: {
+                                path: `/board/${board.name}`
+                            }
+                        });
+                    });
+                })
+                .catch(e => console.error(e.message));
         },
         signOut() {
             this.$store.commit('deleteToken');

@@ -32,7 +32,8 @@ export default {
     methods: {
         openUpdateModal(user) {
             this.$emit('openUpdateModal', 'to mother')
-        }
+        },
+        
     }
 };
 </script>

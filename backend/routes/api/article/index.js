@@ -128,7 +128,9 @@ router.delete('/:_id', (req, res, next) => {
         .then(r => {
             console.log(r)
             if (!r) throw new Error('게시물이 존재하지 않습니다')
-            // if (!r._user) throw new Error('손님 게시물은 삭제가 안됩니다')
+            if (!r._user) {
+                if(req.user.level > 0) throw new Error('손님 게시물은 삭제가 안됩니다');
+            }
             if (r._user && r._user.toString() !== req.user._id) {
                 if (r._user.level < req.user.level) throw new Error('본인이 작성한 게시물이 아닙니다')
             }
