@@ -39,13 +39,10 @@ router.post('/in', (req, res) => {
     User.findOne({ id })
         .then(async (result) => {
             if (!result) throw new Error('존재하지 않는 아이디입니다.');
-
             // 단방향 함수 사용하여 회원가입했을때 저장한 cryptopwd와 로그인했을때 cryptopwd 비교하여 처리한다.
             const cryptopwd = crypto.scryptSync(pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
-            console.log(result.pwd, cryptopwd)
             if (result.pwd !== cryptopwd) throw new Error('비밀번호가 틀립니다.');
             const accessToken = await createSignToken(result._id, result.id, result.level, result.name, remember);
-            console.log('accessToken => ', accessToken);
             return accessToken;
         })
         .then(accessToken => {

@@ -32,7 +32,7 @@ const getToken = async (token) => {
     }
     // 60초보다 작을 경우 token을 다시 생성한다.
     const refreshToken = await createSignToken(vt._id, vt.id, vt.level, vt.name, expSec);
-    console.log('refreshToken => ', refreshToken);
+    // console.log('refreshToken => ', refreshToken);
     vt = await verifyToken(refreshToken);
 
     return { user: vt, token: refreshToken };
