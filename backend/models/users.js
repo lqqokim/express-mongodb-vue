@@ -17,25 +17,23 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 // User.collection.dropIndexes({ name: 1 })
-
+const { id, pwd, name } = config.admin;
 const createUser = (user) => {
-    if (!user) return User.create({ id: config.admin.id, pwd: config.admin.pwd, name: config.admin.name, level: 0 })
+    if (!user) return User.create({ id, pwd, name, level: 0 })
     return null // Promise.resolve 처리 안해도 then은 기본적으로 Promise 값을 반환
 }
 
-User.findOne({ id: config.admin.id })
+User.findOne({ id })
     .then(user => {
-        // return createUser(user);
         return createUser(user);
     })
     .then(result => {
-        console.log(result);
         if (!result) Promise.resolve(null);
-        if (result.pwd !== config.admin.pwd) return Promise.resolve(null);
+        if (result.pwd !== pwd) return Promise.resolve(null);
         if (result) console.log(`admin:${result.id} created!!!`, result);
 
-        const pwd = crypto.scryptSync(result.pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
-        return User.updateOne({ _id: result._id }, { $set: { pwd } });
+        const cryptopwd = crypto.scryptSync(result.pwd, result._id.toString(), 64, { N: 1024 }).toString('hex');
+        return User.updateOne({ _id: result._id }, { $set: { pwd: cryptopwd } });
     })
     .then(result => {
         if (result) console.log('password changed!');

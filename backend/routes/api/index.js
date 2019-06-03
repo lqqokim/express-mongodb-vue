@@ -26,7 +26,7 @@ const getToken = async (token) => {
     const diff = moment(vt.exp * 1000).diff(moment(), 'seconds');
     console.log('diff => ', diff);
     // 손님이면 token 발급없이 null을 return | 60초 보다 diff가 크면 토큰을 새로 내려줄 필요가 없기 때문에 null을 return
-    const expSec = (vt.exp - vt.iat);
+    const expSec = (vt.exp - vt.iat); // 180
     if (vt.level > 2 || diff > expSec / config.jwt.expiresInDiv) {
         return { user: vt, token: null };
     }
@@ -64,9 +64,9 @@ const createSignToken = (_id, id, level, name, exp) => {
             expiresIn: exp
         };
 
-        console.log('jwtOptions => ', jwtOptions)
+        console.log('createSignToken => ', exp)
         // token 생성
-        jwt.sign({ _id, id, level, name, exp }, config.jwt.secretKey, jwtOptions, (err, token) => {
+        jwt.sign({ _id, id, level, name }, config.jwt.secretKey, jwtOptions, (err, token) => {
             if (err) reject(err);
             resolve(token);
         });
@@ -86,7 +86,10 @@ router.all('*', (req, res, next) => {
             req.user = vt.user;
             next() // token검사 이후 다음 라우터로 이동
         })
-        .catch(err => res.send({ success: false, msg: err.message })) // 에러가 나면 다음 라우터 넘어가지 않는다
+        .catch(err => {
+            console.log('token check', err, token);
+            res.send({ success: false, msg: err.message });
+        }); // 에러가 나면 다음 라우터 넘어가지 않는다
 });
 
 // 회원 level에 따른 Page 권환 체크
