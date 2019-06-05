@@ -76,12 +76,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <!-- Modal end-->
-
-        <v-snackbar v-model="snackbar">
-            {{ notifyMsg }}
-            <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
-        </v-snackbar>
     </v-container>
 </template>
 
@@ -119,10 +113,6 @@ export default {
             this.userAge = '';
             this.dialog = true;
         },
-        openNotify(msg) {
-            this.snackbar = true;
-            this.notifyMsg = msg;
-        },
         openUpdateModal(user) {
             this.updateId = user._id;
             this.userName = user.name;
@@ -140,11 +130,18 @@ export default {
             this.$axios
                 .post(`${this.$apiRootPath}user/`, param)
                 .then(res => {
-                    this.openNotify(`${this.userName} 등록이 완료 되었습니다.`);
+                    this.$store.commit('pop', {
+                        msg: `${this.userName} 등록이 완료 되었습니다.`,
+                        color: 'success'
+                    });
                     this.getUsers();
                 })
                 .catch(err => {
-                    this.openNotify(err.message);
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         getUsers() {
@@ -168,22 +165,36 @@ export default {
             this.$axios
                 .put(`${this.$apiRootPath}manage/user/${this.updateId}`, param)
                 .then(res => {
-                    this.openNotify(`${this.userName} 수정이 완료 되었습니다.`);
+                    this.$store.commit('pop', {
+                        msg: '사용자 수정 완료',
+                        color: 'success'
+                    });
                     this.getUsers();
                 })
                 .catch(err => {
-                    this.openNotify(err.message);
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         deleteUser(userId) {
             this.$axios
                 .delete(`${this.$apiRootPath}manage/user/${userId}`)
                 .then(res => {
-                    this.openNotify(`${this.userName} 삭제가 완료 되었습니다.`);
+                    this.$store.commit('pop', {
+                        msg: '사용자 삭제 완료',
+                        color: 'success'
+                    });
                     this.getUsers();
                 })
                 .catch(err => {
-                    this.openNotify(err.message);
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         }
     }

@@ -8,7 +8,6 @@
                 <user-card :user="user" @openUpdateModal="pop"/>
             </v-flex>
         </v-layout>
-        <v-snackbar v-model="sb.act">{{ sb.msg }}</v-snackbar>
     </v-container>
 </template>
 

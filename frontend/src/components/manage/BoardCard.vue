@@ -93,22 +93,33 @@ export default {
             if (
                 board.name === this.form.name &&
                 board.rmk === this.form.rmk &&
-                board.level === this.form.level
+                board.lv === this.form.level
             ) {
-                return this.pop('변경한 것이 없습니다.', 'warning');
+                return this.$store.commit('pop', {
+                    msg: '변경한 것이 없습니다.',
+                    color: 'warning'
+                });
             }
-            
+
             this.$axios
                 .put(`manage/board/${board._id}`, this.form)
                 .then(r => {
                     if (!r.data.success) throw new Error(r.data.msg);
+                    this.$store.commit('pop', {
+                        msg: '게시판 수정 완료',
+                        color: 'success'
+                    });
                     board.name = this.form.name;
                     board.rmk = this.form.rmk;
                     board.level = this.form.level;
                     this.edit = false;
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         del(board) {
@@ -116,20 +127,19 @@ export default {
                 .delete(`manage/board/${board._id}`)
                 .then(r => {
                     if (!r.data.success) throw new Error(r.data.msg);
+                    this.$store.commit('pop', {
+                        msg: '게시판 삭제 완료',
+                        color: 'success'
+                    });
                     this.$emit('list');
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
-        },
-        pop(m, t) {
-            if (this.ma.act) return;
-            this.ma.act = true;
-            this.ma.msg = m;
-            this.ma.type = t;
-            setTimeout(() => {
-                this.ma.act = false;
-            }, 6000);
         }
     }
 };

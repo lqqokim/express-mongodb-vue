@@ -48,10 +48,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-snackbar v-model="sb.act">
-            {{ sb.msg }}
-            <v-btn :color="sb.color" flat @click="sb.act = false">닫기</v-btn>
-        </v-snackbar>
     </v-container>
 </template>
 <script>
@@ -69,12 +65,7 @@ export default {
                 rmk: '',
                 lv: 0
             },
-            selected: 0,
-            sb: {
-                act: false,
-                msg: '',
-                color: 'error'
-            }
+            selected: 0
         };
     },
     mounted() {
@@ -90,35 +81,44 @@ export default {
             };
         },
         add() {
-            if (!this.form.name) {
-                return this.pop('이름을 작성해주세요', 'warning');
-            }
+            if (!this.form.name)
+                return this.$store.commit('pop', {
+                    msg: '이름을 작성해주세요',
+                    color: 'warning'
+                });
 
             this.$axios
                 .post('manage/board', this.form)
                 .then(r => {
+                    this.$store.commit('pop', {
+                        msg: '게시판 생성 완료',
+                        color: 'success'
+                    });
                     this.dialog = false;
                     this.list();
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         list() {
             this.$axios
                 .get('manage/board')
                 .then(({ data }) => {
-                    console.log('board data => ', data)
+                    console.log('board data => ', data);
                     this.boards = data.boards;
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
-        },
-        pop(m, c) {
-            this.sb.act = true;
-            this.sb.msg = m;
-            this.sb.color = c;
         }
     }
 };

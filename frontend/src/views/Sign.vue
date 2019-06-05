@@ -27,10 +27,7 @@
                                 label="비밀번호"
                                 type="password"
                             ></v-text-field>
-                            <v-checkbox
-                                v-model="form.remember"
-                                label="암호 기억하기(최대 7일 보관 됩니다.)"
-                            ></v-checkbox>
+                            <v-checkbox v-model="form.remember" label="암호 기억하기(최대 7일 보관 됩니다.)"></v-checkbox>
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
@@ -61,14 +58,19 @@ export default {
             axios
                 .post(`${this.$apiRootPath}sign/in`, this.form)
                 .then(result => {
-                    if (!result.data.success)
-                        return console.error(result.data.msg);
+                    if (!result.data.success) throw new Error(r.data.msg);
                     localStorage.setItem('token', result.data.token);
                     this.$store.commit('getToken');
                     this.$router.push('/');
                     // location.href = '/'
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
+                });
         }
     }
 };

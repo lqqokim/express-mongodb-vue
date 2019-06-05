@@ -53,7 +53,9 @@ const pageCheck = (to, from, next) => {
 		})
 		.catch((e) => {
 			// next(`/block/${e.message}`)
-			next(`/block/${e.message.replace(/\//gi, ' ')}`)
+			// next(`/block/${e.message.replace(/\//gi, ' ')}`)
+			if(!e.response) store.commit('pop', { msg: e.message, color: 'warning' });
+			next(false);
 		})
 }
 
@@ -110,7 +112,7 @@ export default new Router({
 		{
 			path: '/manage/page',
 			name: 'page',
-			component: () => import('./views/manage/Page'),
+			component: () => import('./views/manage/Pages'),
 			beforeEnter: pageCheck
 		},
 		{
@@ -125,15 +127,6 @@ export default new Router({
 			component: () => import('./views/manage/Site'),
 			beforeEnter: pageCheck
 		},
-		// {
-		//   path: '/header',
-		//   name: '헤더',
-		//   component: () => import('./views/Header.vue'),
-		//   beforeEnter: (to, from, next) => {
-		//     if(!localStorage.getItem('token')) return next('block')
-		//     next()
-		//   }
-		// },
 		{
 			path: '/sign',
 			name: 'sign',

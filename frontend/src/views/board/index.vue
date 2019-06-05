@@ -118,10 +118,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-snackbar v-model="sb.act">
-            {{ sb.msg }}
-            <v-btn :color="sb.color" flat @click="sb.act = false">닫기</v-btn>
-        </v-snackbar>
     </v-container>
 </template>
 <script>
@@ -141,11 +137,6 @@ export default {
             form: {
                 title: '',
                 content: ''
-            },
-            sb: {
-                act: false,
-                msg: '',
-                color: 'error'
             },
             headers: [
                 {
@@ -194,7 +185,8 @@ export default {
                 this.delay();
             }
         },
-        $route(to, from) { // 동일 컴포넌트 랜더링시에 $route 변경 감지
+        $route(to, from) {
+            // 동일 컴포넌트 랜더링시에 $route 변경 감지
             // 경로 변경에 반응하여...
             this.getBoard();
         },
@@ -253,14 +245,24 @@ export default {
                     this.getArticles();
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         addArticle() {
             if (!this.form.title)
-                return this.pop('제목을 작성해주세요', 'warning');
+                return this.$store.commit('pop', {
+                    msg: '제목을 작성해주세요',
+                    color: 'warning'
+                });
             if (!this.form.content)
-                return this.pop('내용을 작성해주세요', 'warning');
+                return this.$store.commit('pop', {
+                    msg: '내용을 작성해주세요',
+                    color: 'warning'
+                });
             this.$axios
                 .post(`article/${this.board._id}`, this.form)
                 .then(({ data }) => {
@@ -269,7 +271,11 @@ export default {
                     this.getArticles();
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         getArticles() {
@@ -297,7 +303,11 @@ export default {
                     this.loading = false;
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                     this.loading = false;
                 });
         },
@@ -315,15 +325,15 @@ export default {
                     this.loading = false;
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                     if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                     this.loading = false;
                 });
         },
         updateArticle() {
             if (!this.form.title)
-                return this.pop('제목을 작성해주세요', 'warning');
+                return this.$store.commit('pop', { msg: '제목을 작성해주세요', color: 'warning' })
             if (!this.form.content)
-                return this.pop('내용을 작성해주세요', 'warning');
+                return this.$store.commit('pop', { msg: '내용을 작성해주세요', color: 'warning' })
             if (
                 this.selectedArticle.title === this.form.title &&
                 this.selectedArticle.content === this.form.content
@@ -338,7 +348,7 @@ export default {
                     this.selectedArticle.content = data.d.content;
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                      if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                 });
         },
         deleteArticle() {
@@ -350,7 +360,7 @@ export default {
                     this.getArticles();
                 })
                 .catch(e => {
-                    this.pop(e.message, 'error');
+                    if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                 });
         },
         pop(m, c) {

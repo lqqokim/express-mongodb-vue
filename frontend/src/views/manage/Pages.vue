@@ -54,10 +54,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-snackbar v-model="snackbar">
-            {{ sbMsg }}
-            <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
-        </v-snackbar>
     </v-container>
 </template>
 <script>
@@ -87,7 +83,7 @@ export default {
                     this.pages = r.data.pages;
                 })
                 .catch(e => {
-                    this.pop(e.message);
+                    if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                 });
         },
         putDialog(page) {
@@ -104,22 +100,22 @@ export default {
                     level: this.pageLv
                 })
                 .then(r => {
-                    this.pop('페이지 수정 완료');
+       this.$store.commit('pop', { msg: '페이지 수정 완료', color: 'success' })
                     this.getPages();
                 })
                 .catch(e => {
-                    this.pop(e.message);
+             if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                 });
         },
         delPage(id) {
             this.$axios
                 .delete(`${this.$apiRootPath}manage/page/${id}`)
                 .then(r => {
-                    this.pop('페이지 삭제 완료');
+          this.$store.commit('pop', { msg: '페이지 삭제 완료', color: 'success' })
                     this.getPages();
                 })
                 .catch(e => {
-                    this.pop(e.message);
+                  if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
                 });
         },
         pop(msg) {

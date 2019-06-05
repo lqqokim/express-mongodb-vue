@@ -130,10 +130,12 @@ export default {
                 .then(result => {
                     if (!result.data.success)
                         return this.pop('서버에러', 'warning');
-					this.pop('가입 완료 되었습니다.', 'success');
+      this.$store.commit('pop', { msg: '가입 완료 되었습니다', color: 'success' })
 					this.$router.push('/sign');
                 })
-                .catch(err => this.pop(err.message, 'error'));
+                .catch(err => {
+                      if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
+                });
         },
         clear() {
             this.form.id = '';
