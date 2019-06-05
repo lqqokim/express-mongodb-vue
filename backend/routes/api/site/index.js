@@ -13,8 +13,4 @@ router.get('/', function (req, res, next) {
     })
 });
 
-router.all('*', function (req, res, next) {
-  next(createError(404, '그런 api 없어'));
-});
-
 module.exports = router;

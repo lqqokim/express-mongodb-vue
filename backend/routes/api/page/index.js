@@ -11,7 +11,7 @@ router.post('/', function (req, res, next) {
   Page.findOne({ name })
     .then((r) => {
       if (!r) {
-        if (req.user.level > 0) throw new Error(`페이지 ${name} 생성이 안되었습니다.`); // 관리자가 아니면 생성 할 수 없다.
+        if (req.user.level > 0) throw new Error(`페이지 ${name} 생성이 안되었습니다`); // 관리자가 아니면 생성 할 수 없다.
         return Page.create({ name });
       } else {
         if (r.level < req.user.level) throw new Error(`Page: ${name} / 접근 권한이 없습니다.`); // User권환이 Page권한보다 낮을때
@@ -25,13 +25,9 @@ router.post('/', function (req, res, next) {
       //   console.log(rs)
       res.send({ success: true, d: req.user, token: req.token });
     })
-    .catch((e) => {
-      res.send({ success: false, msg: e.message });
+    .catch(err => {
+      throw createError(403, err.message)
     });
-});
-
-router.all('*', function (req, res, next) {
-  next(createError(404, '그런 api 없어'));
 });
 
 module.exports = router;

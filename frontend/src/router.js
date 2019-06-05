@@ -41,6 +41,23 @@ axios.interceptors.response.use((response) => {
 	return response;
 }, function (error) {
 	// Do something with response error
+	// error status가 있는것은 code로 처리하고 view에서 생성한 에러 따로 처리하는부분은 !e.response 일때
+	switch (error.response.status) {
+		case 400:
+			store.commit('pop', { msg: `잘못된 요청입니다(${error.response.status}:${error.message})`, color: 'error' })
+			break
+		case 401:
+			store.commit('delToken')
+			store.commit('pop', { msg: `인증 오류입니다(${error.response.status}:${error.message})`, color: 'error' })
+			break
+		case 403:
+			store.commit('pop', { msg: `이용 권한이 없습니다(${error.response.status}:${error.message})`, color: 'warning' })
+			break
+		default:
+			store.commit('pop', { msg: `알수 없는 오류입니다(${error.response.status}:${error.message})`, color: 'error' })
+			break
+	}
+
 	return Promise.reject(error);
 });
 
@@ -54,7 +71,7 @@ const pageCheck = (to, from, next) => {
 		.catch((e) => {
 			// next(`/block/${e.message}`)
 			// next(`/block/${e.message.replace(/\//gi, ' ')}`)
-			if(!e.response) store.commit('pop', { msg: e.message, color: 'warning' });
+			if (!e.response) store.commit('pop', { msg: e.message, color: 'warning' });
 			next(false);
 		})
 }

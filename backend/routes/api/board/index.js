@@ -8,7 +8,8 @@ router.get('/read/:name', (req, res, next) => {
 
     Board.findOne({ name })
         .then(result => {
-            console.log(' Board.findOne => ', result)
+            // 권한으로 못보게 하려면
+              // if (r.lv < req.lv) throw new Error(`${name} 게시판을 볼 수 있는 자격이 없습니다.`)
             res.send({ success: true, d: result, token: req.token })
         })
         .catch(e => {
@@ -24,11 +25,6 @@ router.get('/list', (req, res, next) => {
         .catch(err => {
             res.send({ success: false, msg: e.message });
         });
-});
-
-router.all('*', function (req, res, next) {
-    console.log('createError')
-    next(createError(404, '그런 api 없어'));
 });
 
 module.exports = router;

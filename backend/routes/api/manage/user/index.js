@@ -8,7 +8,7 @@ router.get('/', function (req, res, next) {
         .then(users => {
             res.send({ success: true, users: users, token: req.token });
         }).catch(err => {
-            res.send({ success: false });
+            res.send({ success: false, msg: err.message });
         });
 });
 
@@ -45,10 +45,6 @@ router.delete('/:id', (req, res, next) => {
         }).catch(err => {
             res.send({ success: false, msg: err.message });
         });
-});
-
-router.all('*', function (req, req, next) {
-    next(createError(404, 'user 존재하지 않는 페이지'));
 });
 
 module.exports = router;

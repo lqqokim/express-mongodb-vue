@@ -7,9 +7,9 @@ const User = require('../../../models/users');
 // 로그인 시
 router.post('/', (req, res) => {
     const { id, pwd, name } = req.body
-    if (!id) return res.send({ success: false, msg: '아이디가 없습니다.' });
-    if (!pwd) return res.send({ success: false, msg: '비밀번호가 없습니다.' });
-    if (!name) return res.send({ success: false, msg: '이름이 없습니다.' });
+    if (!id)  throw createError(400, '아이디가 없습니다')
+    if (!pwd) throw createError(400, '비밀번호가 없습니다')
+    if (!name) throw createError(400, '이름이 없습니다.')
 
     User.findOne({ id })
         .then(user => {
@@ -26,9 +26,5 @@ router.post('/', (req, res) => {
         })
         .catch(err => res.send({ success: false, msg: err.message }));
 })
-
-router.all('*', function (req, res, next) {
-    next(createError(404, '그런 api 없어'));
-});
 
 module.exports = router;

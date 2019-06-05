@@ -38,10 +38,7 @@ app.use('/api', require('./routes/api'));
 
 // 존재하지 않는 경로일때 서버에서의 처리를 view 단의 페이지에서 처리할 수 있도록 위임한다.
 app.use(history());
-
-
 app.use(express.static(path.join(__dirname, './../', 'frontend', 'dist')));
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

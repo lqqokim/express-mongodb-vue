@@ -1,33 +1,16 @@
-var express = require('express');
 var createError = require('http-errors');
-var router = express.Router();
+var router = require('express').Router();
 const Board = require('../../../models/boards')
 const Article = require('../../../models/articles')
 const mongoose = require('mongoose');
 
 mongoose.set('useFindAndModify', false);
 
-// const a = {
-//   order: null, skip: 100, limit: 10
-// }
-//
-// let { sort, order, skip, limit } = a
-// sort = 1
-// order = 3
-//
-// console.log(sort&order&skip&limit)
-// console.log(sort&&order&&skip&&limit)
-
-// if (a||e === undefined) console.log('und')
-// else console.log('u')
-
 router.get('/list/:_board', (req, res, next) => {
     const _board = req.params._board
     let { search, sort, order, skip, limit } = req.query
-    // console.log(req.query)
-    // console.log(sort && order && skip && limit)
-    // console.log(search & sort & order & skip & limit)
-    if (!(sort && order && skip && limit)) return res.send({ success: false, msg: '잘못된 요청입니다' })
+
+    if (!(sort && order && skip && limit)) throw createError(400, '잘못된 요청입니다');
     if (!search) search = ''
     order = parseInt(order)
     limit = parseInt(limit)
@@ -65,6 +48,7 @@ router.get('/read/:_id', (req, res, next) => {
     Article.findByIdAndUpdate(_id, { $inc: { 'cnt.view': 1 } }, { new: true })
         .select('content cnt.view')
         .then(r => {
+            if (!r) throw new Error('잘못된 게시판입니다')
             res.send({ success: true, d: r, token: req.token })
         })
         .catch(e => {
@@ -76,12 +60,12 @@ router.get('/read/:_id', (req, res, next) => {
 
 router.post('/:_board', (req, res, next) => {
     const _board = req.params._board
-    if (!_board) return res.send({ success: false, msg: '게시판이 선택되지 않았습니다' }); // 나중에 400 bad request 처리 예제
+    if (!_board) throw createError(400, '게시판이 선택되지 않았습니다') // 나중에 400 bad request 처리 예제
     const { title, content } = req.body
     Board.findById(_board)
         .then(r => {
-            if (!r) return res.send({ success: false, msg: '잘못된 게시판입니다' });
-            // if (r.level < req.user.level) return res.send({ success: false, msg: '권한이 없습니다' })
+            if (!r) throw createError(400, '잘못된 게시판입니다')
+            if (r.level < req.user.level) throw createError(403, '권한이 없습니다')
             const atc = {
                 title,
                 content,
@@ -89,10 +73,11 @@ router.post('/:_board', (req, res, next) => {
                 ip: '1.1.1.1',//req.ip,
                 _user: null
             }
-            if (req.user._id) atc._user = req.user._id
-            return Article.create(atc)
+            if (req.user._id) atc._user = req.user._id;
+            return Article.create(atc);
         })
         .then(r => {
+            if (!r) throw new Error('게시물이 생성되지 않았습니다')
             res.send({ success: true, d: r, token: req.token })
         })
         .catch(e => {
@@ -102,7 +87,7 @@ router.post('/:_board', (req, res, next) => {
 
 
 router.put('/:_id', (req, res, next) => {
-    if (!req.user._id) return res.send({ success: false, msg: '게시물 수정 권한이 없습니다' })
+    if (!req.user._id) if (!req.user._id) throw createError(403, '게시물 수정 권한이 없습니다')
     const _id = req.params._id
 
     Article.findById(_id)
@@ -121,7 +106,7 @@ router.put('/:_id', (req, res, next) => {
 })
 
 router.delete('/:_id', (req, res, next) => {
-    if (!req.user._id) return res.send({ success: false, msg: '게시물 수정 권한이 없습니다' })
+    if (!req.user._id) throw createError(403, '게시물 삭제 권한이 없습니다')
     const _id = req.params._id
 
     Article.findById(_id).populate('_user', 'level')
@@ -142,10 +127,6 @@ router.delete('/:_id', (req, res, next) => {
         .catch(e => {
             res.send({ success: false, msg: e.message })
         })
-})
-
-router.all('*', function (req, res, next) {
-    next(createError(404, '그런 api 없어'));
 });
 
 module.exports = router;

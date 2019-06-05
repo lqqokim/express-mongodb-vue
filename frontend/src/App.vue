@@ -217,12 +217,21 @@ export default {
     },
     methods: {
         getSite() {
-            this.$axios.get('site').then(result => {
-                const data = result.data.d;
-                this.siteTitle = data.title;
-                this.siteCopyright = data.copyright;
-                this.siteDark = data.dark;
-            });
+            this.$axios
+                .get('site')
+                .then(result => {
+                    const data = result.data.d;
+                    this.siteTitle = data.title;
+                    this.siteCopyright = data.copyright;
+                    this.siteDark = data.dark;
+                })
+                .catch(e => {
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
+                });
         },
         getBoards() {
             this.$axios
@@ -237,7 +246,13 @@ export default {
                         });
                     });
                 })
-                .catch(e => console.error(e.message));
+                .catch(e => {
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
+                });
         },
         signOut() {
             this.$store.commit('deleteToken');

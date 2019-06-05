@@ -88,8 +88,8 @@ router.all('*', (req, res, next) => {
             next() // token검사 이후 다음 라우터로 이동
         })
         .catch(err => {
-            console.log('token check', err, token);
-            res.send({ success: false, msg: err.message });
+            // res.send({ success: false, msg: err.message });
+            next(createError(401), err.message); // app.user error hendler로 이동 
         }); // 에러가 나면 다음 라우터 넘어가지 않는다
 });
 
@@ -118,9 +118,7 @@ console.log('**************')
 console.log('*****USER*****')
 console.log('**************')
 
+router.all('*', require('./notFound'));
 
-router.all('*', (req, res, next) => {
-    next(createError(404, '존재하지 않는 api 입니다.'));
-});
 
 module.exports = router;

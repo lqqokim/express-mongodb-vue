@@ -58,7 +58,7 @@ export default {
             axios
                 .post(`${this.$apiRootPath}sign/in`, this.form)
                 .then(result => {
-                    if (!result.data.success) throw new Error(r.data.msg);
+                    if (!result.data.success) throw new Error(result.data.msg);
                     localStorage.setItem('token', result.data.token);
                     this.$store.commit('getToken');
                     this.$router.push('/');

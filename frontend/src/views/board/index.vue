@@ -338,7 +338,7 @@ export default {
                 this.selectedArticle.title === this.form.title &&
                 this.selectedArticle.content === this.form.content
             )
-                return this.pop('변경된 내용이 없습니다', 'warning');
+                return this.$store.commit('pop', { msg: '변경된 내용이 없습니다', color: 'warning' })
             this.$axios
                 .put(`article/${this.selectedArticle._id}`, this.form)
                 .then(({ data }) => {

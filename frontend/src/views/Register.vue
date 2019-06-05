@@ -128,13 +128,19 @@ export default {
                     return this.$axios.post('register', this.form);
                 })
                 .then(result => {
-                    if (!result.data.success)
-                        return this.pop('서버에러', 'warning');
-      this.$store.commit('pop', { msg: '가입 완료 되었습니다', color: 'success' })
-					this.$router.push('/sign');
+                    if (!result.data.success) throw new Error(r.data.msg);
+                    this.$store.commit('pop', {
+                        msg: '가입 완료 되었습니다',
+                        color: 'success'
+                    });
+                    this.$router.push('/sign');
                 })
                 .catch(err => {
-                      if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         clear() {
