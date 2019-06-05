@@ -39,7 +39,7 @@ router.get('/list/:_board', (req, res, next) => {
         })
         .catch(e => {
             res.send({ success: false, msg: e.message })
-        })
+        });
 })
 
 router.get('/read/:_id', (req, res, next) => {

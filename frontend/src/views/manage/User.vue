@@ -136,7 +136,7 @@ export default {
                     });
                     this.getUsers();
                 })
-                .catch(err => {
+                .catch(e => {
                     if (!e.response)
                         this.$store.commit('pop', {
                             msg: e.message,
@@ -171,7 +171,7 @@ export default {
                     });
                     this.getUsers();
                 })
-                .catch(err => {
+                .catch(e => {
                     if (!e.response)
                         this.$store.commit('pop', {
                             msg: e.message,
@@ -189,7 +189,7 @@ export default {
                     });
                     this.getUsers();
                 })
-                .catch(err => {
+                .catch(e => {
                     if (!e.response)
                         this.$store.commit('pop', {
                             msg: e.message,

@@ -1,65 +1,61 @@
 <template>
-    <v-container grid-list-md>
+    <v-container
+        fluid
+        :grid-list-md="!$vuetify.breakpoint.xs"
+        :class="$vuetify.breakpoint.xs ? 'pa-0' : ''"
+    >
         <v-layout row wrap>
             <v-flex xs12>
                 <v-card>
-                    <v-img
-                        class="white--text"
-                        height="70px"
-                        src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
+                    <v-card-title class="headline">
+                        <v-tooltip bottom>
+                            <span slot="activator">{{board.name}}</span>
+                            <span>{{board.rmk}}</span>
+                        </v-tooltip>
+                        <v-spacer></v-spacer>
+                        <v-text-field
+                            label="검색"
+                            append-icon="search"
+                            v-model="params.search"
+                            clearable
+                        ></v-text-field>
+                    </v-card-title>
+                    <v-data-table
+                        :headers="headers"
+                        :items="articles"
+                        :total-items="pagination.totalItems"
+                        :pagination.sync="pagination"
+                        rows-per-page-text
+                        :loading="loading"
+                        class="text-no-wrap"
+                        disable-initial-sort
                     >
-                        <v-container fill-height fluid>
-                            <v-layout fill-height>
-                                <v-flex xs6 align-end flexbox>
-                                    <span class="headline">{{$route.params.name}} 게시판</span>
-                                </v-flex>
-                                <!-- <v-flex xs6 align-end flexbox class="text-xs-right">
-                                    <span>{{board.rmk}}</span>
-                                </v-flex>-->
-                            </v-layout>
-                        </v-container>
-                    </v-img>
-                </v-card>
-            </v-flex>
-            <!-- <v-flex xs12 sm6 md4 v-for="article in articles" :key="article._id">
-        {{article}}
-            </v-flex>-->
-            <v-flex xs12 sm4 offset-sm8>
-                <v-text-field label="검색" append-icon="search" v-model="params.search" clearable></v-text-field>
-            </v-flex>
-            <v-flex xs12>
-                <v-data-table
-                    :headers="headers"
-                    :items="articles"
-                    :total-items="pagination.totalItems"
-                    :pagination.sync="pagination"
-                    rows-per-page-text
-                    :loading="loading"
-                    class="text-no-wrap"
-                    disable-initial-sort
-                >
-                    <template slot="items" slot-scope="props">
-                        <td :class="headers[0].class">{{ id2date(props.item._id)}}</td>
-                        <td :class="headers[1].class">
-                            <a @click="getArticle(props.item)">{{ props.item.title }}</a>
-                        </td>
-                        <td
-                            :class="headers[2].class"
-                        >{{ props.item._user ? props.item._user.id : '손님' }}</td>
-                        <td :class="headers[3].class">{{ props.item.cnt.view }}</td>
-                        <td :class="headers[4].class">{{ props.item.cnt.like }}</td>
-                    </template>
-                </v-data-table>
-                <div class="text-xs-center pt-2">
+                        <template slot="items" slot-scope="props">
+                            <td :class="headers[0].class">{{ id2date(props.item._id)}}</td>
+                            <td :class="headers[1].class">
+                                <a @click="getArticle(props.item)">{{ props.item.title }}</a>
+                            </td>
+                            <td
+                                :class="headers[2].class"
+                            >{{ props.item._user ? props.item._user.id : '손님' }}</td>
+                            <td :class="headers[3].class">{{ props.item.cnt.view }}</td>
+                            <td :class="headers[4].class">{{ props.item.cnt.like }}</td>
+                        </template>
+
+                        <template slot="actions-prepend"></template>
+                        <template slot="actions-append"></template>
+                    </v-data-table>
+                    <!-- <div class="text-xs-center pt-2">
                     <v-pagination v-model="pagination.page" :length="pages"></v-pagination>
-                </div>
+                    </div>-->
+                </v-card>
             </v-flex>
         </v-layout>
 
         <v-btn color="pink" dark small absolute bottom right fab @click="addDialog">
             <v-icon>add</v-icon>
         </v-btn>
-        <v-dialog v-model="dialog" persistent max-width="500px">
+        <v-dialog v-model="dialog" persistent max-width="500px" :fullscreen="$vuetify.breakpoint.xs">
             <v-card v-if="!dlMode">
                 <v-card-title>
                     <span class="headline">{{selectedArticle.title}}</span>
@@ -287,7 +283,8 @@ export default {
                 skip: this.setSkip,
                 limit: this.pagination.rowsPerPage,
                 sort: this.setSort,
-                order: this.setOrder
+                order: this.setOrder,
+                search: this.params.search
                 // draw: thia.params.draw++
             };
 
@@ -325,20 +322,33 @@ export default {
                     this.loading = false;
                 })
                 .catch(e => {
-                     if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                     this.loading = false;
                 });
         },
         updateArticle() {
             if (!this.form.title)
-                return this.$store.commit('pop', { msg: '제목을 작성해주세요', color: 'warning' })
+                return this.$store.commit('pop', {
+                    msg: '제목을 작성해주세요',
+                    color: 'warning'
+                });
             if (!this.form.content)
-                return this.$store.commit('pop', { msg: '내용을 작성해주세요', color: 'warning' })
+                return this.$store.commit('pop', {
+                    msg: '내용을 작성해주세요',
+                    color: 'warning'
+                });
             if (
                 this.selectedArticle.title === this.form.title &&
                 this.selectedArticle.content === this.form.content
             )
-                return this.$store.commit('pop', { msg: '변경된 내용이 없습니다', color: 'warning' })
+                return this.$store.commit('pop', {
+                    msg: '변경된 내용이 없습니다',
+                    color: 'warning'
+                });
             this.$axios
                 .put(`article/${this.selectedArticle._id}`, this.form)
                 .then(({ data }) => {
@@ -348,7 +358,11 @@ export default {
                     this.selectedArticle.content = data.d.content;
                 })
                 .catch(e => {
-                      if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         deleteArticle() {
@@ -360,7 +374,11 @@ export default {
                     this.getArticles();
                 })
                 .catch(e => {
-                    if (!e.response) this.$store.commit('pop', { msg: e.message, color: 'warning' })
+                    if (!e.response)
+                        this.$store.commit('pop', {
+                            msg: e.message,
+                            color: 'warning'
+                        });
                 });
         },
         pop(m, c) {
