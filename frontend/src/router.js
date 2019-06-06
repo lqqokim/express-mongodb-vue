@@ -83,7 +83,7 @@ export default new Router({
 		{
 			path: '/',
 			name: 'dashboard',
-			component: () => import('./views/dashboard'),
+			component: () => import('./views/dashboard/index'),
 			beforeEnter: pageCheck
 		},
 		{

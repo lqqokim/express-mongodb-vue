@@ -6,6 +6,7 @@
             </v-card-title>
             <v-divider light></v-divider>
             <v-card-text>
+                <div>제목: {{board.title}}</div>
                 <div>권한: {{board.level}}</div>
                 <div>설명: {{board.rmk}}</div>
             </v-card-text>
@@ -23,11 +24,19 @@
             <v-card-text>
                 <v-form>
                     <v-text-field
-                        label="게시판 이름"
-                        :hint="form.name ? '' : '야구모임'"
+                        label="게시판 경로"
+                        :hint="form.name ? '' : '경로로 사용하니 영어로 써주세요'"
                         persistent-hint
                         required
                         v-model="form.name"
+                    ></v-text-field>
+
+                    <v-text-field
+                        label="게시판 제목"
+                        :hint="form.title ? '' : '야구모임'"
+                        persistent-hint
+                        required
+                        v-model="form.title"
                     ></v-text-field>
 
                     <v-text-field
@@ -43,7 +52,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="green darken-1" flat @click="mod(board)">확인</v-btn>
+                <v-btn color="green darken-1" flat @click="modifyBoard(board)">확인</v-btn>
                 <v-btn color="error darken-1" flat @click.native="edit = false">취소</v-btn>
             </v-card-actions>
         </template>
@@ -51,7 +60,7 @@
         <v-card-text v-if="ca">
             <v-alert v-model="ca" type="warning">
                 <h4>정말 진행 하시겠습니까?</h4>
-                <v-btn color="error" @click="del(board)">확인</v-btn>
+                <v-btn color="error" @click="deleteBoard(board)">확인</v-btn>
                 <v-btn color="secondary" @click="ca=false">취소</v-btn>
             </v-alert>
         </v-card-text>
@@ -84,16 +93,18 @@ export default {
         modeChange(b) {
             this.edit = true;
             this.form = {
+                title: b.title,
                 name: b.name,
                 level: b.level,
                 rmk: b.rmk
             };
         },
-        mod(board) {
+        modifyBoard(board) {
             if (
                 board.name === this.form.name &&
                 board.rmk === this.form.rmk &&
-                board.lv === this.form.level
+                board.lv === this.form.level &&
+                board.title === this.form.title
             ) {
                 return this.$store.commit('pop', {
                     msg: '변경한 것이 없습니다.',
@@ -110,6 +121,7 @@ export default {
                         color: 'success'
                     });
                     board.name = this.form.name;
+                    board.title = this.form.title;
                     board.rmk = this.form.rmk;
                     board.level = this.form.level;
                     this.edit = false;
@@ -122,7 +134,7 @@ export default {
                         });
                 });
         },
-        del(board) {
+        deleteBoard(board) {
             this.$axios
                 .delete(`manage/board/${board._id}`)
                 .then(r => {

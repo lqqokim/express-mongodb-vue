@@ -5,6 +5,7 @@ mongoose.set('useCreateIndex', true);
 const boardSchema = new mongoose.Schema({
     name: { type: String, default: '', index: true, unique: true },
     level: { type: Number, default: 0 },
+    title: { type: String, default: '' },
     rmk: { type: String, default: '' }
 });
 
