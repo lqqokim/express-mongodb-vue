@@ -106,6 +106,7 @@ router.use('/manage', require('./manage'));
 console.log('**************')
 console.log('****MANAGE****')
 console.log('**************')
+router.use('/user', require('./user'));
 
 router.use('/test', require('./test'));
 router.all('*', function (req, res, next) {

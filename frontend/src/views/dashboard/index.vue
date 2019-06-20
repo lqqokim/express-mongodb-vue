@@ -80,17 +80,17 @@
     </v-container>
 </template>
 <script>
-import smallCard from '@/components/dashboard/SmallCard';
-import trendCard from '@/components/dashboard/TrendCard';
-import linkCard from '@/components/dashboard/LinkCard';
-import boardCard from '@/components/dashboard/BoardCard';
+import SmallCard from '@/components/dashboard/SmallCard';
+import TrendCard from '@/components/dashboard/TrendCard';
+import LinkCard from '@/components/dashboard/LinkCard';
+import BoardCard from '@/components/dashboard/BoardCard';
 
 export default {
     components: {
-        smallCard,
-        trendCard,
-        boardCard,
-        linkCard
+        SmallCard,
+        TrendCard,
+        BoardCard,
+        LinkCard
     }
 };
 </script>

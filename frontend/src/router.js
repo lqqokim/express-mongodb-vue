@@ -155,6 +155,12 @@ export default new Router({
 			component: () => import('./views/Register.vue')
 		},
 		{
+			path: '/user',
+			name: 'user',
+			component: () => import('./views/User'),
+			beforeEnter: pageCheck
+		  },
+		{
 			path: '/block/:msg',
 			name: '차단',
 			component: () => import('./views/Block.vue')

@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
     age: { type: Number, default: 1 },
     retry: { type: Number, default: 0 },
     level: { type: Number, default: 2 },
-    loginCnt: { type: Number, default: 0 }
+    loginCnt: { type: Number, default: 0 },
+    img: { type: String, default: '' }
 });
 
 const User = mongoose.model('User', userSchema);
