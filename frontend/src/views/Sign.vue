@@ -60,7 +60,7 @@ export default {
                 .then(result => {
                     if (!result.data.success) throw new Error(result.data.msg);
                     localStorage.setItem('token', result.data.token);
-                    this.$store.commit('getToken');
+                    this.$store.commit('getToken', result.data.user);
                     this.$router.push('/');
                     // location.href = '/'
                 })

@@ -8,7 +8,7 @@ router.post('/', function (req, res, next) {
   const { name } = req.body;
   console.log('page post => ', name)
 
-  Page.findOne({ name })
+  Page.findOne({ name }).lean()
     .then((r) => {
       if (!r) {
         if (req.user.level > 0) throw new Error(`페이지 ${name} 생성이 안되었습니다`); // 관리자가 아니면 생성 할 수 없다.
