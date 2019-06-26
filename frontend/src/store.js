@@ -38,6 +38,11 @@ export default new Vuex.Store({
       if (d.act === undefined) state.sb.act = true
     }
   },
+  getters: {
+    img: state => {
+      return state.user.img;
+    }
+  },
   actions: {
 
   }

@@ -9,7 +9,7 @@ import store from './store'
 Vue.use(Router)
 
 Vue.prototype.$axios = axios;
-// Vue.prototype.$store = store;
+Vue.prototype.$store = store;
 
 const apiRootPath = process.env.NODE_ENV !== 'production' ? 'http://localhost:3000/api/' : '/api/'
 Vue.prototype.$apiRootPath = apiRootPath;
@@ -36,7 +36,7 @@ axios.interceptors.response.use((response) => {
 
 	if (token) {
 		localStorage.setItem('token', token);
-		store.commit('getToken');
+		// store.commit('getToken');
 	}
 	return response;
 }, function (error) {
@@ -47,7 +47,7 @@ axios.interceptors.response.use((response) => {
 			store.commit('pop', { msg: `잘못된 요청입니다(${error.response.status}:${error.message})`, color: 'error' })
 			break
 		case 401:
-			store.commit('delToken')
+			store.commit('deleteToken')
 			store.commit('pop', { msg: `인증 오류입니다(${error.response.status}:${error.message})`, color: 'error' })
 			break
 		case 403:
@@ -145,25 +145,20 @@ export default new Router({
 			beforeEnter: pageCheck
 		},
 		{
-			path: '/sign',
-			name: 'sign',
-			component: () => import('./views/Sign.vue')
-		},
-		{
-			path: '/register',
-			name: 'register',
-			component: () => import('./views/Register.vue')
-		},
-		{
 			path: '/user',
 			name: 'user',
 			component: () => import('./views/User'),
 			beforeEnter: pageCheck
-		  },
+		},
 		{
-			path: '/block/:msg',
-			name: '차단',
-			component: () => import('./views/Block.vue')
+			path: '/sign',
+			name: '로그인',
+			component: () => import('./views/Sign.vue')
+		},
+		{
+			path: '/register',
+			name: '회원가입',
+			component: () => import('./views/Register.vue')
 		},
 		{
 			path: '*',
